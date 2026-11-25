@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sentinel-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DATABASE_URL=mongodb://mongo:27017/sentinel_x
+      - JWT_SECRET=sentinel_x_production_secret_key_change_in_prod
+      - SDN_CONTROLLER_URL=http://ryu-controller:8080
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+      - LOG_LEVEL=INFO
+    depends_on:
+      - mongo
+    volumes:
+      - ./backend:/app
+      - ./data:/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sentinel-frontend
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api
+      - VITE_WS_URL=ws://localhost:8000/ws
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6.0
+    container_name: sentinel-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+  ryu-controller:
+    image: osrg/ryu:latest
+    container_name: sentinel-ryu
+    ports:
+      - "8080:8080"
+      - "6633:6633"
+      - "6653:6653"
+    command: ryu-manager ryu.app.simple_switch_13 ryu.app.ofctl_rest
+    restart: unless-stopped
+
+volumes:
+  mongo-data:

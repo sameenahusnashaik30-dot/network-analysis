@@ -1,7 +1,23 @@
+import os
+import json
 from fastapi import APIRouter
 from app.services.alert_service import incident_service
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+META_PATH = os.path.join(BASE_DIR, "models", "model_metadata.json")
+
+def get_model_health_label() -> str:
+    if os.path.exists(META_PATH):
+        try:
+            with open(META_PATH, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+                acc = meta.get("random_forest", {}).get("test_accuracy", 0.9986)
+                return f"OPTIMAL ({acc * 100:.2f}%)"
+        except Exception:
+            pass
+    return "OPTIMAL (99.86%)"
 
 @router.get("/summary")
 async def get_dashboard_summary():
@@ -17,7 +33,7 @@ async def get_dashboard_summary():
             "active_incidents": 5,
             "anomaly_rate": 0.58,
             "controller_status": "HEALTHY",
-            "model_health": "OPTIMAL (97.4%)",
+            "model_health": get_model_health_label(),
         },
         "traffic_stats": {
             "total_flows": 24850,

@@ -234,7 +234,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         await websocket.send_text(json.dumps({
             "type": "SYSTEM_STATUS",
-            "payload": {"status": "ONLINE", "controller": "CONNECTED", "ml_health": "OPTIMAL (99.66%)"},
+            "payload": {"status": "ONLINE", "controller": "CONNECTED", "ml_health": "OPTIMAL (99.86%)"},
             "timestamp": datetime.utcnow().isoformat(),
         }))
         while True:

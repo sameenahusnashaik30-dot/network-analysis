@@ -31,9 +31,12 @@ class AnomalyDetector:
                 pass
 
     def reconstruct(self, x: np.ndarray) -> np.ndarray:
-        if self.model is not None:
-            return self.model.predict(x.reshape(1, -1))[0]
-        return np.zeros_like(x)
+        if self.model is None:
+            raise RuntimeError(
+                f"Autoencoder anomaly model not loaded from '{self.model_path}'. "
+                "Ensure trained model artifact exists and application startup initialized properly."
+            )
+        return self.model.predict(x.reshape(1, -1))[0]
 
     def detect(self, flow_dict: Dict[str, Any]) -> Tuple[float, float, float, bool]:
         """
@@ -49,8 +52,9 @@ class AnomalyDetector:
         # Genuine Mean squared reconstruction error
         rec_error = float(np.mean((x - x_hat) ** 2))
         
-        # Sigmoid mapping centered around calibrated normal threshold
-        anomaly_score = float(1.0 / (1.0 + np.exp(-1.5 * (rec_error - self.threshold))))
+        # Relative sigmoid mapping centered around calibrated normal threshold
+        scale_factor = 4.0 / max(0.1, self.threshold)
+        anomaly_score = float(1.0 / (1.0 + np.exp(-scale_factor * (rec_error - self.threshold))))
         anomaly_score = round(min(1.0, max(0.01, anomaly_score)), 3)
         
         is_anomaly = (rec_error > self.threshold) or (anomaly_score > 0.60)

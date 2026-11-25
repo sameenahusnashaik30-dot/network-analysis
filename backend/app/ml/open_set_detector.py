@@ -6,7 +6,7 @@ class OpenSetDetector:
     Ensures that high-reconstruction-loss traffic with weak supervised confidence
     or unusual protocol/flag combinations is NOT forced into an existing known attack class.
     """
-    def __init__(self, confidence_threshold: float = 0.80, anomaly_threshold: float = 0.60):
+    def __init__(self, confidence_threshold: float = 0.80, anomaly_threshold: float = 0.50):
         self.confidence_threshold = confidence_threshold
         self.anomaly_threshold = anomaly_threshold
 
@@ -26,23 +26,23 @@ class OpenSetDetector:
         """
         tcp_flags = str(flow_dict.get("tcp_flags", ""))
         packet_rate = float(flow_dict.get("packet_rate", 0))
+        is_novel_flag = ("URG" in tcp_flags)
 
         # 1. Normal traffic: low reconstruction error and predicted class is Normal
-        if known_class == "Normal" and anomaly_score < self.anomaly_threshold:
+        if known_class == "Normal" and anomaly_score < self.anomaly_threshold and not is_novel_flag:
             return False, round(1.0 - known_confidence, 3), "Normal", "Traffic conforms with normal baseline manifold."
 
         # 2. Open-Set Zero-Day Candidate Trigger:
-        # If anomaly is severe (> threshold) AND (confidence is below strong threshold OR unusual flags like URG are present)
-        is_novel_flag = ("URG" in tcp_flags)
-        if anomaly_score >= self.anomaly_threshold and (known_confidence < self.confidence_threshold or is_novel_flag):
+        # If novel flags like URG are present OR (anomaly exceeds threshold AND confidence in known class is weak)
+        if is_novel_flag or (anomaly_score >= self.anomaly_threshold and known_confidence < self.confidence_threshold):
             unknown_score = round(max(0.68, anomaly_score * (1.0 - known_confidence + 0.35)), 3)
             unknown_score = min(0.99, unknown_score)
             
             if unknown_score > 0.80 or is_novel_flag or packet_rate > 400:
                 label = "Zero-Day Candidate"
                 reason = (
-                    f"Extreme Autoencoder reconstruction loss ({anomaly_score}) with ambiguous classifier certainty "
-                    f"({known_confidence:.2f}) and novel feature combinations. Open-set recognition prevents misclassification."
+                    f"Elevated Autoencoder reconstruction loss ({anomaly_score}) with ambiguous classifier certainty "
+                    f"({known_confidence:.2f}) and novel protocol signature. Open-set recognition prevents misclassification."
                 )
             else:
                 label = "Unknown Attack"

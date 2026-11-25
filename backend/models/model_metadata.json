@@ -1,0 +1,161 @@
+{
+  "dataset": {
+    "total_samples": 7000,
+    "classes": [
+      "Normal",
+      "DDoS",
+      "DoS",
+      "Port Scan",
+      "Brute Force",
+      "Botnet",
+      "Web Attack"
+    ],
+    "train_samples": 4200,
+    "val_samples": 1400,
+    "test_samples": 1400
+  },
+  "random_forest": {
+    "val_accuracy": 0.9957142857142857,
+    "test_accuracy": 0.9985714285714286,
+    "classification_report": {
+      "Botnet": {
+        "precision": 0.995,
+        "recall": 0.995,
+        "f1-score": 0.995,
+        "support": 200.0
+      },
+      "Brute Force": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 200.0
+      },
+      "DDoS": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 200.0
+      },
+      "DoS": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 200.0
+      },
+      "Normal": {
+        "precision": 1.0,
+        "recall": 0.995,
+        "f1-score": 0.9974937343358395,
+        "support": 200.0
+      },
+      "Port Scan": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 200.0
+      },
+      "Web Attack": {
+        "precision": 0.9950248756218906,
+        "recall": 1.0,
+        "f1-score": 0.9975062344139651,
+        "support": 200.0
+      },
+      "accuracy": 0.9985714285714286,
+      "macro avg": {
+        "precision": 0.9985749822316986,
+        "recall": 0.9985714285714286,
+        "f1-score": 0.998571424107115,
+        "support": 1400.0
+      },
+      "weighted avg": {
+        "precision": 0.9985749822316987,
+        "recall": 0.9985714285714286,
+        "f1-score": 0.9985714241071151,
+        "support": 1400.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        199,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        200,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        199,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        200,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        200
+      ]
+    ],
+    "classes": [
+      "Botnet",
+      "Brute Force",
+      "DDoS",
+      "DoS",
+      "Normal",
+      "Port Scan",
+      "Web Attack"
+    ]
+  },
+  "autoencoder": {
+    "architecture": "10 -> 8 -> 4 -> 8 -> 10",
+    "activation": "tanh",
+    "threshold": 0.342966258999196,
+    "normal_val_mean_error": 0.14259258978860637,
+    "attack_val_mean_error": 0.8635114787808421,
+    "test_normal_fpr": 0.06,
+    "test_attack_recall": 0.6183333333333333
+  }
+}

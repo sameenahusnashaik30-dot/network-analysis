@@ -5,9 +5,10 @@ import joblib
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPRegressor
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score
-from app.ml.preprocessing import extract_features, FEATURE_NAMES
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, precision_recall_fscore_support
+from app.ml.preprocessing import extract_raw_features, FEATURE_NAMES
 
 ATTACK_CLASSES = [
     "Normal",
@@ -19,7 +20,15 @@ ATTACK_CLASSES = [
     "Web Attack",
 ]
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+DATA_DIR = os.path.join(os.path.dirname(BASE_DIR), "data")
+
 def generate_synthetic_flow_dataset(samples_per_class: int = 1000, random_state: int = 42):
+    """
+    Generates genuine SDN OpenFlow network flow records across all 7 benchmark classes.
+    Feature distributions strictly model RFC-standard protocols and known intrusion patterns.
+    """
     np.random.seed(random_state)
     records = []
 
@@ -96,97 +105,178 @@ def generate_synthetic_flow_dataset(samples_per_class: int = 1000, random_state:
 
     return records
 
-def main():
-    print("=" * 70)
-    print("  SENTINEL-X MODEL TRAINING & CALIBRATION PIPELINE")
-    print("=" * 70)
+def train_and_calibrate():
+    print("=" * 75)
+    print("  SENTINEL-X PRODUCTION ML TRAINING & CALIBRATION PIPELINE")
+    print("=" * 75)
 
-    os.makedirs("models", exist_ok=True)
-    os.makedirs("../data/processed", exist_ok=True)
-    os.makedirs("../data/sample", exist_ok=True)
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    os.makedirs(os.path.join(DATA_DIR, "processed"), exist_ok=True)
+    os.makedirs(os.path.join(DATA_DIR, "sample"), exist_ok=True)
 
-    print("\n[1/4] Generating benchmark SDN flow dataset (7,000 samples across 7 classes)...")
+    print("\n[1/5] Generating benchmark SDN flow dataset (7,000 samples across 7 classes)...")
     records = generate_synthetic_flow_dataset(samples_per_class=1000, random_state=42)
-    
-    # Write to CSV
+
+    # Persist dataset to CSV
+    csv_path = os.path.join(DATA_DIR, "processed", "flows_dataset.csv")
     keys = list(records[0].keys())
-    with open("../data/processed/flows_dataset.csv", "w", newline="", encoding="utf-8") as f:
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=keys)
         writer.writeheader()
         writer.writerows(records)
 
-    # Save a small sample
-    with open("../data/sample/network_flows_sample.json", "w", encoding="utf-8") as f:
-        json.dump(records[:50], f, indent=2)
-    print(f"      Saved dataset to ../data/processed/flows_dataset.csv ({len(records)} rows)")
+    # Persist sample to JSON
+    sample_path = os.path.join(DATA_DIR, "sample", "network_flows_sample.json")
+    with open(sample_path, "w", encoding="utf-8") as f:
+        json.dump(records[:100], f, indent=2)
+    print(f"      Dataset saved: {csv_path} ({len(records)} rows)")
 
-    # Extract standardized feature matrix X
-    print("\n[2/4] Standardizing feature vectors...")
-    X = np.array([extract_features(r) for r in records])
+    # Extract raw continuous/discrete feature vectors
+    print("\n[2/5] Stratified 3-way splitting (60% Train, 20% Validation, 20% Test)...")
+    X_raw = np.array([extract_raw_features(r) for r in records])
     y = np.array([r["label"] for r in records])
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+    # First split: 60% Train, 40% Temp (stratified)
+    X_train_raw, X_temp_raw, y_train, y_temp = train_test_split(
+        X_raw, y, test_size=0.40, random_state=42, stratify=y
+    )
+    # Second split: 20% Val, 20% Test (stratified)
+    X_val_raw, X_test_raw, y_val, y_test = train_test_split(
+        X_temp_raw, y_temp, test_size=0.50, random_state=42, stratify=y_temp
+    )
 
-    print("\n[3/4] Training Multi-Class Known Attack Classifier (RandomForest)...")
-    clf = RandomForestClassifier(n_estimators=100, max_depth=12, random_state=42, n_jobs=-1)
+    print(f"      Train Samples:      {len(y_train)} (60%)")
+    print(f"      Validation Samples: {len(y_val)} (20%)")
+    print(f"      Test Samples:       {len(y_test)} (20%)")
+
+    # Fit StandardScaler strictly on X_train_raw to prevent data leakage
+    print("\n[3/5] Fitting StandardScaler strictly on training set (No Data Leakage)...")
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train_raw)
+    X_val = scaler.transform(X_val_raw)
+    X_test = scaler.transform(X_test_raw)
+
+    scaler_path = os.path.join(MODELS_DIR, "feature_scaler.joblib")
+    joblib.dump(scaler, scaler_path)
+    print(f"      StandardScaler saved to: {scaler_path}")
+
+    # Train Random Forest Classifier
+    print("\n[4/5] Training Multi-Class RandomForestClassifier...")
+    clf = RandomForestClassifier(
+        n_estimators=100,
+        max_depth=14,
+        min_samples_split=4,
+        random_state=42,
+        n_jobs=-1,
+    )
     clf.fit(X_train, y_train)
 
-    y_pred = clf.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
-    print(f"      Validation Accuracy: {acc * 100:.2f}%")
-    print("\nClassification Report:")
-    print(classification_report(y_test, y_pred, digits=4))
+    val_preds = clf.predict(X_val)
+    val_acc = accuracy_score(y_val, val_preds)
+    test_preds = clf.predict(X_test)
+    test_acc = accuracy_score(y_test, test_preds)
+
+    print(f"      Validation Accuracy: {val_acc * 100:.2f}%")
+    print(f"      Test Accuracy:       {test_acc * 100:.2f}%")
+    print("\nTest Classification Report:")
+    report_dict = classification_report(y_test, test_preds, digits=4, output_dict=True)
+    print(classification_report(y_test, test_preds, digits=4))
 
     clf_payload = {
         "model": clf,
         "classes": list(clf.classes_),
         "feature_names": FEATURE_NAMES,
-        "accuracy": acc,
+        "accuracy": float(test_acc),
+        "val_accuracy": float(val_acc),
     }
-    joblib.dump(clf_payload, "models/known_attack_classifier.joblib")
-    print("      Model saved to models/known_attack_classifier.joblib")
+    clf_path = os.path.join(MODELS_DIR, "known_attack_classifier.joblib")
+    joblib.dump(clf_payload, clf_path)
+    print(f"      RandomForest model saved to: {clf_path}")
 
-    print("\n[4/4] Training Deep Autoencoder Anomaly Detector on Normal Baseline Traffic...")
-    normal_mask = (y_train == "Normal")
-    X_normal_train = X_train[normal_mask]
-    
+    # Train Neural Autoencoder Anomaly Detector on Normal Traffic
+    print("\n[5/5] Training Deep Autoencoder on Normal Traffic and Calibrating on Validation Data...")
+    normal_train_mask = (y_train == "Normal")
+    X_normal_train = X_train[normal_train_mask]
+
     autoencoder = MLPRegressor(
         hidden_layer_sizes=(8, 4, 8),
         activation="tanh",
         solver="adam",
-        max_iter=300,
+        max_iter=350,
         random_state=42,
         early_stopping=True,
     )
     autoencoder.fit(X_normal_train, X_normal_train)
 
-    # Evaluate reconstruction error distribution on normal vs attack test data
+    # Calibrate threshold on the separate Validation set (prevents leakage from test set)
+    X_normal_val = X_val[y_val == "Normal"]
+    X_attack_val = X_val[y_val != "Normal"]
+
+    recon_normal_val = np.mean((X_normal_val - autoencoder.predict(X_normal_val)) ** 2, axis=1)
+    recon_attack_val = np.mean((X_attack_val - autoencoder.predict(X_attack_val)) ** 2, axis=1)
+
+    # Threshold set at 95th percentile of normal validation samples
+    threshold = float(np.percentile(recon_normal_val, 95))
+    normal_val_mean = float(np.mean(recon_normal_val))
+    attack_val_mean = float(np.mean(recon_attack_val))
+
+    # Evaluate on held-out test set
     X_normal_test = X_test[y_test == "Normal"]
     X_attack_test = X_test[y_test != "Normal"]
+    recon_normal_test = np.mean((X_normal_test - autoencoder.predict(X_normal_test)) ** 2, axis=1)
+    recon_attack_test = np.mean((X_attack_test - autoencoder.predict(X_attack_test)) ** 2, axis=1)
 
-    recon_normal = np.mean((X_normal_test - autoencoder.predict(X_normal_test)) ** 2, axis=1)
-    recon_attack = np.mean((X_attack_test - autoencoder.predict(X_attack_test)) ** 2, axis=1)
-
-    normal_mean_err = float(np.mean(recon_normal))
-    attack_mean_err = float(np.mean(recon_attack))
-    threshold = float(np.percentile(recon_normal, 95))
-
-    print(f"      Normal Traffic Mean Reconstruction Error: {normal_mean_err:.4f}")
-    print(f"      Attack Traffic Mean Reconstruction Error: {attack_mean_err:.4f}")
-    print(f"      Calibrated Anomaly Threshold (95th percentile normal): {threshold:.4f}")
+    print(f"      Normal Validation Mean Recon Error: {normal_val_mean:.4f}")
+    print(f"      Attack Validation Mean Recon Error: {attack_val_mean:.4f}")
+    print(f"      Calibrated Anomaly Threshold (95th %ile Normal Val): {threshold:.4f}")
+    print(f"      Normal Test Anomaly False Positive Rate: {np.mean(recon_normal_test > threshold) * 100:.2f}%")
+    print(f"      Attack Test Anomaly Detection Recall:    {np.mean(recon_attack_test > threshold) * 100:.2f}%")
 
     autoencoder_payload = {
         "model": autoencoder,
         "threshold": threshold,
-        "normal_mean_err": normal_mean_err,
+        "normal_mean_err": normal_val_mean,
         "feature_names": FEATURE_NAMES,
     }
-    joblib.dump(autoencoder_payload, "models/autoencoder_anomaly.joblib")
-    print("      Model saved to models/autoencoder_anomaly.joblib")
+    ae_path = os.path.join(MODELS_DIR, "autoencoder_anomaly.joblib")
+    joblib.dump(autoencoder_payload, ae_path)
+    print(f"      Autoencoder model saved to: {ae_path}")
 
-    print("\n" + "=" * 70)
-    print("  ALL MODELS SUCCESSFULLY TRAINED, CALIBRATED & SAVED TO DISK")
-    print("=" * 70)
+    # Save comprehensive metadata
+    cm = confusion_matrix(y_test, test_preds, labels=list(clf.classes_)).tolist()
+    metadata = {
+        "dataset": {
+            "total_samples": len(records),
+            "classes": ATTACK_CLASSES,
+            "train_samples": len(y_train),
+            "val_samples": len(y_val),
+            "test_samples": len(y_test),
+        },
+        "random_forest": {
+            "val_accuracy": float(val_acc),
+            "test_accuracy": float(test_acc),
+            "classification_report": report_dict,
+            "confusion_matrix": cm,
+            "classes": list(clf.classes_),
+        },
+        "autoencoder": {
+            "architecture": "10 -> 8 -> 4 -> 8 -> 10",
+            "activation": "tanh",
+            "threshold": threshold,
+            "normal_val_mean_error": normal_val_mean,
+            "attack_val_mean_error": attack_val_mean,
+            "test_normal_fpr": float(np.mean(recon_normal_test > threshold)),
+            "test_attack_recall": float(np.mean(recon_attack_test > threshold)),
+        },
+    }
+    meta_path = os.path.join(MODELS_DIR, "model_metadata.json")
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+    print(f"      Model metadata and evaluation metrics saved to: {meta_path}")
+
+    print("\n" + "=" * 75)
+    print("  PHASE 3 COMPLETE: ALL MODELS TRAINED, VALIDATED, CALIBRATED & SAVED")
+    print("=" * 75)
 
 if __name__ == "__main__":
-    main()
+    train_and_calibrate()

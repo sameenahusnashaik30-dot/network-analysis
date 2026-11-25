@@ -4,13 +4,18 @@ import numpy as np
 from typing import Dict, Any, Tuple
 from app.ml.preprocessing import extract_features
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DEFAULT_MODEL_PATH = os.path.join(BASE_DIR, "models", "autoencoder_anomaly.joblib")
+
 class AnomalyDetector:
     """
     Layer B: Deep Autoencoder Neural Network Anomaly Detector.
     Computes genuine reconstruction error L_rec = ||x - x_hat||^2 against a baseline normal threshold.
     """
-    def __init__(self, model_path: str = "models/autoencoder_anomaly.joblib", default_threshold: float = 0.60):
+    def __init__(self, model_path: str = DEFAULT_MODEL_PATH, default_threshold: float = 0.60):
         self.model_path = model_path
+        if not os.path.exists(self.model_path) and os.path.exists(DEFAULT_MODEL_PATH):
+            self.model_path = DEFAULT_MODEL_PATH
         self.model = None
         self.threshold = default_threshold
         self.normal_mean_err = 0.7759

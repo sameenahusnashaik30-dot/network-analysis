@@ -6,13 +6,18 @@ from typing import Dict, Any, List
 from app.adversarial.perturbation import perturb_flow_telemetry
 from app.ml.detection_engine import detection_engine
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DEFAULT_SAMPLE_PATH = os.path.join(os.path.dirname(BASE_DIR), "data", "sample", "network_flows_sample.json")
+
 class AdversarialEvaluator:
     """
     Evaluates baseline vs perturbed model performance metrics by running genuine
     flow evaluation batches through the hybrid detection engine under adversarial evasion.
     """
-    def __init__(self, sample_data_path: str = "../data/sample/network_flows_sample.json"):
+    def __init__(self, sample_data_path: str = DEFAULT_SAMPLE_PATH):
         self.sample_data_path = sample_data_path
+        if not os.path.exists(self.sample_data_path) and os.path.exists(DEFAULT_SAMPLE_PATH):
+            self.sample_data_path = DEFAULT_SAMPLE_PATH
 
     def _load_eval_flows(self) -> List[Dict[str, Any]]:
         if os.path.exists(self.sample_data_path):

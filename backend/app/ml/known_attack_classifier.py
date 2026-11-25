@@ -14,13 +14,18 @@ ATTACK_CLASSES = [
     "Web Attack",
 ]
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DEFAULT_MODEL_PATH = os.path.join(BASE_DIR, "models", "known_attack_classifier.joblib")
+
 class KnownAttackClassifier:
     """
     Layer A: Supervised Multi-Class Machine Learning Classifier (Random Forest).
     Trained on standardized SDN OpenFlow telemetry to evaluate calibrated class probabilities.
     """
-    def __init__(self, model_path: str = "models/known_attack_classifier.joblib"):
+    def __init__(self, model_path: str = DEFAULT_MODEL_PATH):
         self.model_path = model_path
+        if not os.path.exists(self.model_path) and os.path.exists(DEFAULT_MODEL_PATH):
+            self.model_path = DEFAULT_MODEL_PATH
         self.model = None
         self.classes = ATTACK_CLASSES
 

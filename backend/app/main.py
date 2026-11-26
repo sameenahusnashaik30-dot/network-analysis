@@ -156,7 +156,7 @@ class WebSocketManager:
 
     async def broadcast(self, message: dict):
         dead_connections = []
-        for connection in self.active_connections:
+        for connection in list(self.active_connections):
             try:
                 await connection.send_text(json.dumps(message))
             except Exception:
@@ -167,21 +167,31 @@ class WebSocketManager:
 ws_manager = WebSocketManager()
 
 async def telemetry_stream_worker():
-    """Background worker streaming live OpenFlow telemetry pulses over WebSocket."""
+    """Background worker streaming real telemetry pulses computed from SQLite and SDN controller."""
+    flow_repo = FlowRepository()
+    from app.sdn.controller_client import sdn_client
     while True:
         try:
-            await asyncio.sleep(3.0)
+            await asyncio.sleep(4.0)
             if ws_manager.active_connections:
+                stats = flow_repo.get_statistics()
+                sdn_status = await sdn_client.get_status()
                 pulse = {
                     "type": "TELEMETRY_STREAM",
                     "payload": {
-                        "active_flows": 1420 + random.randint(-15, 25),
-                        "packets_per_sec": round(18450.0 + random.uniform(-400, 400), 1),
-                        "bytes_per_sec": round(14285000.0 + random.uniform(-250000, 250000), 1),
-                        "controller_status": "HEALTHY",
-                        "openflow_version": "1.3",
+                        "total_flows": stats["total_flows"],
+                        "active_flows": stats["active_flows"],
+                        "packets_per_sec": stats["packets_per_sec"],
+                        "bytes_per_sec": stats["bytes_per_sec"],
+                        "tcp_percent": stats["tcp_percent"],
+                        "udp_percent": stats["udp_percent"],
+                        "icmp_percent": stats["icmp_percent"],
+                        "top_sources": stats["top_sources"],
+                        "controller_status": "ACTIVE" if sdn_status.is_online else "DISCONNECTED",
+                        "openflow_version": sdn_status.controller_version,
+                        "is_demo": (stats["total_flows"] == 0),
                     },
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.utcnow().isoformat() + "Z",
                 }
                 await ws_manager.broadcast(pulse)
         except asyncio.CancelledError:
@@ -231,14 +241,27 @@ app.include_router(reports.router, prefix=api_prefix)
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await ws_manager.connect(websocket)
+    from app.sdn.controller_client import sdn_client
+    flow_repo = FlowRepository()
+    sdn_status = await sdn_client.get_status()
+    stats = flow_repo.get_statistics()
     try:
         await websocket.send_text(json.dumps({
             "type": "SYSTEM_STATUS",
-            "payload": {"status": "ONLINE", "controller": "CONNECTED", "ml_health": "OPTIMAL (99.86%)"},
-            "timestamp": datetime.utcnow().isoformat(),
+            "payload": {
+                "status": "ONLINE",
+                "openflow_status": sdn_status.openflow_status,
+                "is_online": sdn_status.is_online,
+                "total_flows": stats["total_flows"],
+                "active_flows": stats["active_flows"],
+                "ml_health": "OPTIMAL (99.86% test accuracy)",
+            },
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         }))
         while True:
-            await websocket.receive_text()
+            msg = await websocket.receive_text()
+            if msg == "ping":
+                await websocket.send_text(json.dumps({"type": "PONG", "timestamp": datetime.utcnow().isoformat() + "Z"}))
     except WebSocketDisconnect:
         ws_manager.disconnect(websocket)
 

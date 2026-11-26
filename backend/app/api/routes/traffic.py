@@ -50,40 +50,10 @@ async def get_realtime_traffic():
 @router.get("/history")
 async def get_traffic_history(range_val: str = Query("1H", alias="range", pattern="^(1H|6H|24H|7D)$")):
     """
-    Returns time-bucketed historical traffic trends.
-    Computes from database when records exist, or provides structured timeline baseline.
+    Returns time-bucketed historical traffic trends computed directly from SQLite.
+    Eliminates hardcoded values when live records exist.
     """
-    total_count = flow_repo.get_count()
-    is_demo = (total_count == 0)
-    
-    count = 12 if range_val == "1H" else 24
-    points = []
-    now = time.time()
-    step = 300 if range_val == "1H" else 1800
-    
-    for i in range(count, -1, -1):
-        t_str = time.strftime("%H:%M", time.localtime(now - i * step))
-        if is_demo:
-            base = 1200 + int((i % 4) * 80)
-            points.append({
-                "timestamp": t_str,
-                "normal": base,
-                "suspicious": int(base * 0.08),
-                "malicious": int(base * 0.03 + (85 if i == 2 else 5)),
-            })
-        else:
-            # When live records exist, scale dynamically from real flow counts
-            normal_cnt = max(1, int(total_count * 0.85))
-            suspicious_cnt = max(0, int(total_count * 0.10))
-            malicious_cnt = max(0, int(total_count * 0.05))
-            points.append({
-                "timestamp": t_str,
-                "normal": normal_cnt,
-                "suspicious": suspicious_cnt,
-                "malicious": malicious_cnt,
-            })
-
-    return {"points": points, "is_demo": is_demo}
+    return flow_repo.get_historical_trend(range_val)
 
 @router.post("/ingest")
 async def ingest_flow(flow: FlowCreate):
@@ -95,14 +65,31 @@ async def ingest_flow(flow: FlowCreate):
     res = detection_service.ingest_flow(flow.dict())
     try:
         from app.main import ws_manager
+        is_attack = res.get("final_label") != "Normal"
+        is_zero_day = res.get("is_zero_day_candidate", False)
+        
+        event_type = "UNKNOWN_ATTACK" if is_zero_day else ("ALERT_CREATED" if is_attack else "FLOW_UPDATE")
         await ws_manager.broadcast({
-            "type": "ALERT_TRIGGERED" if res.get("final_label") != "Normal" else "FLOW_INGESTED",
+            "type": event_type,
             "payload": res,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         })
     except Exception:
         pass
     return res
+
+@router.post("/maintenance/retention")
+async def apply_retention(hours: int = 168):
+    """
+    Enforces configured data retention policy by purging network flows older than `hours` (default: 7 days).
+    """
+    pruned = flow_repo.apply_retention_policy(hours)
+    return {
+        "status": "SUCCESS",
+        "records_pruned": pruned,
+        "retention_hours": hours,
+        "remaining_count": flow_repo.get_count(),
+    }
 
 @router.get("/interfaces")
 async def list_network_interfaces():

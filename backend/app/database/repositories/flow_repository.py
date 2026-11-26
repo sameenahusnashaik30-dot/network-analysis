@@ -1,5 +1,8 @@
 import sqlite3
-from typing import List, Optional
+import time
+from datetime import datetime
+from collections import defaultdict
+from typing import List, Optional, Dict, Any
 from app.database.connection import get_db_connection
 from app.models.flow import Flow
 
@@ -155,3 +158,76 @@ class FlowRepository:
             "top_destinations": top_destinations,
             "top_ports": top_ports,
         }
+
+    def get_historical_trend(self, range_val: str = "1H") -> dict:
+        """
+        Aggregate historical traffic trends from SQLite by time-bucketed intervals.
+        Eliminates hardcoded values when live flow records are present in the database.
+        """
+        total = self.get_count()
+        count = 12 if range_val == "1H" else 24
+        now = time.time()
+        step = 300 if range_val == "1H" else (900 if range_val == "6H" else (3600 if range_val == "24H" else 28800))
+        
+        if total == 0:
+            points = []
+            for i in range(count, -1, -1):
+                t_str = time.strftime("%H:%M", time.localtime(now - i * step))
+                base = 1200 + int((i % 4) * 80)
+                points.append({
+                    "timestamp": t_str,
+                    "normal": base,
+                    "suspicious": int(base * 0.08),
+                    "malicious": int(base * 0.03 + (85 if i == 2 else 5)),
+                })
+            return {"points": points, "is_demo": True, "total_records": 0}
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT timestamp, classification, anomaly_score, is_unknown FROM flows ORDER BY timestamp DESC LIMIT 500")
+        rows = cursor.fetchall()
+        conn.close()
+
+        bucket_map = defaultdict(lambda: {"normal": 0, "suspicious": 0, "malicious": 0})
+        for r in rows:
+            ts_str = r["timestamp"]
+            try:
+                ts_clean = ts_str.replace("Z", "")
+                dt = datetime.fromisoformat(ts_clean)
+                key = dt.strftime("%H:%M" if range_val in ["1H", "6H", "24H"] else "%Y-%m-%d")
+            except Exception:
+                key = ts_str[:16]
+
+            cls = r["classification"]
+            anom = float(r["anomaly_score"] or 0.0)
+            unk = bool(r["is_unknown"])
+
+            if cls == "Normal" and not unk and anom < 0.5:
+                bucket_map[key]["normal"] += 1
+            elif unk or (0.5 <= anom < 0.8):
+                bucket_map[key]["suspicious"] += 1
+            else:
+                bucket_map[key]["malicious"] += 1
+
+        points = []
+        for i in range(count, -1, -1):
+            t_str = time.strftime("%H:%M" if range_val in ["1H", "6H", "24H"] else "%Y-%m-%d", time.localtime(now - i * step))
+            b_data = bucket_map.get(t_str, {"normal": 0, "suspicious": 0, "malicious": 0})
+            points.append({
+                "timestamp": t_str,
+                "normal": b_data["normal"],
+                "suspicious": b_data["suspicious"],
+                "malicious": b_data["malicious"],
+            })
+
+        return {"points": points, "is_demo": False, "total_records": total}
+
+    def apply_retention_policy(self, retention_hours: int = 168) -> int:
+        """Purge network flow records older than retention_hours (default: 7 days)."""
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM flows WHERE datetime(timestamp) < datetime('now', '-{retention_hours} hours')")
+        deleted_count = cursor.rowcount
+        conn.commit()
+        conn.close()
+        return deleted_count

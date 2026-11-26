@@ -40,3 +40,6 @@ Thumbs.db
 # Backups
 backups/
 
+
+cloudflared.exe
+

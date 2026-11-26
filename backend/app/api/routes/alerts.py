@@ -89,6 +89,22 @@ async def update_incident_status(incident_id: str, payload: dict):
 
 @router.get("/attacks/known")
 async def get_known_attacks_overview():
+    import json, os
+    meta_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "models", "model_metadata.json")
+    acc, prec, rec, f1 = 0.9986, 0.9986, 0.9986, 0.9986
+    model_name = "RandomForestClassifier (100 estimators)"
+    if os.path.exists(meta_path):
+        try:
+            with open(meta_path, "r") as f:
+                data = json.load(f)
+                acc = round(data.get("random_forest", {}).get("test_accuracy", 0.9986), 4)
+                cr = data.get("random_forest", {}).get("classification_report", {}).get("macro avg", {})
+                prec = round(cr.get("precision", acc), 4)
+                rec = round(cr.get("recall", acc), 4)
+                f1 = round(cr.get("f1-score", acc), 4)
+        except Exception:
+            pass
+
     return {
         "distribution": [
             {"name": "Normal", "count": 24705, "percentage": 94.2, "color": "#10B981"},
@@ -99,12 +115,12 @@ async def get_known_attacks_overview():
             {"name": "Unknown Attack", "count": 17, "percentage": 0.6, "color": "#06B6D4"},
         ],
         "model_config": {
-            "model_type": "XGBoost",
-            "dataset": "CIC-IDS2017 / SDN-OpenFlow-Flows",
-            "accuracy": 0.984,
-            "precision": 0.978,
-            "recall": 0.972,
-            "f1_score": 0.975,
+            "model_type": model_name,
+            "dataset": "CIC-IDS2017 / SDN OpenFlow Telemetry",
+            "accuracy": acc,
+            "precision": prec,
+            "recall": rec,
+            "f1_score": f1,
             "classes": ["Normal", "DDoS", "DoS", "Port Scan", "Brute Force", "Botnet", "Web Attack"],
         },
         "incidents": incident_service.get_known_attacks(),

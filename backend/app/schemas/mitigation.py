@@ -10,6 +10,10 @@ class MitigationRejectRequest(BaseModel):
     incident_id: str
     reason: str
 
+class MitigationRollbackRequest(BaseModel):
+    incident_id: str
+    reason: Optional[str] = "Admin manual rollback"
+
 class MitigationResponse(BaseModel):
     success: bool
     message: str

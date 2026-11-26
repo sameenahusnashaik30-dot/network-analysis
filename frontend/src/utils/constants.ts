@@ -1,9 +1,12 @@
+const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+const defaultWs = typeof window !== 'undefined' ? `${isHttps ? 'wss:' : 'ws:'}//${window.location.host}/ws` : 'ws://localhost:8000/ws';
+
 export const APP_CONFIG = {
   appName: 'SENTINEL-X',
   appTitle: 'Trustworthy Open-World Zero-Day Attack Detection in SDN',
   version: '1.0.0-PROTOTYPE',
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
-  wsUrl: import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws',
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
+  wsUrl: import.meta.env.VITE_WS_URL || defaultWs,
   demoMode: import.meta.env.VITE_DEMO_MODE === 'true',
 };
 

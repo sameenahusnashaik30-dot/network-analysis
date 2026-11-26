@@ -12,7 +12,19 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    host: true,
-    allowedHosts: true,
+    host: '0.0.0.0',
+    strictPort: true,
+    cors: true,
+    allowedHosts: ['.loca.lt', '.trycloudflare.com', '.pinggy.link', 'localhost', '127.0.0.1'],
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/ws': {
+        target: 'ws://127.0.0.1:8000',
+        ws: true,
+      },
+    },
   },
 });

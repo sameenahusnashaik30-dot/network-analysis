@@ -4,7 +4,7 @@ from typing import Optional
 from app.core.config import settings
 from app.core.logging_config import logger
 
-DB_FILE = "sentinel_x.db"
+DB_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "sentinel_x.db")
 
 def get_db_connection():
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)

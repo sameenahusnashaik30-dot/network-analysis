@@ -86,3 +86,72 @@ class FlowRepository:
             is_unknown=bool(r["is_unknown"]),
             status=r["status"],
         )
+
+    def get_count(self) -> int:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) as count FROM flows")
+        row = cursor.fetchone()
+        conn.close()
+        return row["count"] if row else 0
+
+    def get_statistics(self) -> dict:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) as total FROM flows")
+        total_row = cursor.fetchone()
+        total_flows = total_row["total"] if total_row else 0
+
+        if total_flows == 0:
+            conn.close()
+            return {
+                "total_flows": 0,
+                "active_flows": 0,
+                "packets_per_sec": 0.0,
+                "bytes_per_sec": 0.0,
+                "tcp_percent": 0.0,
+                "udp_percent": 0.0,
+                "icmp_percent": 0.0,
+                "top_sources": [],
+                "top_destinations": [],
+                "top_ports": [],
+            }
+
+        cursor.execute("SELECT AVG(packet_rate) as avg_pkt_rate, AVG(byte_rate) as avg_byte_rate FROM flows")
+        rate_row = cursor.fetchone()
+        avg_pkt_rate = round(float(rate_row["avg_pkt_rate"] or 0.0), 1)
+        avg_byte_rate = round(float(rate_row["avg_byte_rate"] or 0.0), 1)
+
+        cursor.execute("SELECT COUNT(*) as active FROM flows WHERE status = 'active' OR status = 'NEW'")
+        active_row = cursor.fetchone()
+        active_flows = active_row["active"] if (active_row and active_row["active"] > 0) else min(total_flows, 50)
+
+        cursor.execute("SELECT protocol, COUNT(*) as cnt FROM flows GROUP BY protocol")
+        proto_rows = cursor.fetchall()
+        proto_counts = {r["protocol"]: r["cnt"] for r in proto_rows}
+        tcp_pct = round((proto_counts.get("TCP", 0) / total_flows) * 100, 1)
+        udp_pct = round((proto_counts.get("UDP", 0) / total_flows) * 100, 1)
+        icmp_pct = round((proto_counts.get("ICMP", 0) / total_flows) * 100, 1)
+
+        cursor.execute("SELECT src_ip as ip, COUNT(*) as count FROM flows GROUP BY src_ip ORDER BY count DESC LIMIT 5")
+        top_sources = [{"ip": r["ip"], "count": r["count"]} for r in cursor.fetchall()]
+
+        cursor.execute("SELECT dst_ip as ip, COUNT(*) as count FROM flows GROUP BY dst_ip ORDER BY count DESC LIMIT 5")
+        top_destinations = [{"ip": r["ip"], "count": r["count"]} for r in cursor.fetchall()]
+
+        cursor.execute("SELECT dst_port as port, COUNT(*) as count FROM flows GROUP BY dst_port ORDER BY count DESC LIMIT 5")
+        top_ports = [{"port": r["port"], "count": r["count"]} for r in cursor.fetchall()]
+
+        conn.close()
+        return {
+            "total_flows": total_flows,
+            "active_flows": active_flows,
+            "packets_per_sec": avg_pkt_rate,
+            "bytes_per_sec": avg_byte_rate,
+            "tcp_percent": tcp_pct,
+            "udp_percent": udp_pct,
+            "icmp_percent": icmp_pct,
+            "top_sources": top_sources,
+            "top_destinations": top_destinations,
+            "top_ports": top_ports,
+        }

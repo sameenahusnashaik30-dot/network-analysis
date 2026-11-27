@@ -713,7 +713,7 @@ export const api = {
     duration_sec?: number;
   }): Promise<{ success: boolean; message: string; audit_id: string; is_demo: boolean }> {
     const user = authService.getCurrentUser();
-    if (user.role !== 'ADMIN') {
+    if (!user || user.role !== 'ADMIN') {
       throw new Error('UNAUTHORIZED: Only users with the ADMIN role can authorize network mitigation actions.');
     }
 

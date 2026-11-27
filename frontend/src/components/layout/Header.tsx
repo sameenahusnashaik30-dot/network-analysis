@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Shield, RefreshCw, AlertTriangle, Search, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Shield, RefreshCw, AlertTriangle, Search, CheckCircle, LogOut } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { UserRole } from '../../services/auth';
 
@@ -9,7 +10,8 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onRefresh, isDemo = false }) => {
-  const { user, switchRole } = useAuth();
+  const navigate = useNavigate();
+  const { user, switchRole, logout } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
 
@@ -21,16 +23,21 @@ export const Header: React.FC<HeaderProps> = ({ onRefresh, isDemo = false }) => 
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   const roles: UserRole[] = ['ADMIN', 'ANALYST', 'RESEARCHER', 'VIEWER'];
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 fixed top-0 left-64 right-0 z-20 px-6 flex items-center justify-between shadow-sm">
+    <header className="h-16 bg-white border-b border-slate-200 fixed top-0 left-64 right-0 z-20 px-6 flex items-center justify-between shadow-xs">
       {/* Product Title & Subtitle */}
       <div className="flex items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-base font-bold text-slate-900 tracking-tight">SENTINEL-X</h1>
-            <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
               SDN NIDS / NIPS
             </span>
             {isDemo && (
@@ -63,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({ onRefresh, isDemo = false }) => 
           onClick={handleRefresh}
           disabled={refreshing}
           title="Fetch latest network telemetry"
-          className="px-2.5 py-1.5 rounded-md bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-1.5 text-xs font-medium shadow-sm"
+          className="px-2.5 py-1.5 rounded-md bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-1.5 text-xs font-medium shadow-xs"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
           <span className="hidden sm:inline">Refresh</span>
@@ -75,11 +82,11 @@ export const Header: React.FC<HeaderProps> = ({ onRefresh, isDemo = false }) => 
           <span className="font-medium">System Operational</span>
         </div>
 
-        {/* User / Role Switcher */}
+        {/* User Profile & Role Switcher */}
         <div className="relative">
           <button
             onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-white border border-slate-200 hover:bg-slate-50 transition text-xs shadow-sm"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-white border border-slate-200 hover:bg-slate-50 transition text-xs shadow-xs"
           >
             <div className="w-6 h-6 rounded bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
               <Shield className="w-3.5 h-3.5" />
@@ -91,8 +98,8 @@ export const Header: React.FC<HeaderProps> = ({ onRefresh, isDemo = false }) => 
           </button>
 
           {roleDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-lg shadow-lg py-1.5 z-50">
-              <div className="px-3 py-1 border-b border-slate-100 text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+            <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-lg py-1.5 z-50">
+              <div className="px-3 py-1.5 border-b border-slate-100 text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
                 Switch Role (RBAC Simulation)
               </div>
               {roles.map((r) => (
@@ -106,10 +113,23 @@ export const Header: React.FC<HeaderProps> = ({ onRefresh, isDemo = false }) => 
                     user.role === r ? 'font-semibold text-blue-700 bg-blue-50/50' : 'text-slate-700'
                   }`}
                 >
-                  <span>{r}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span>{r}</span>
+                    {r === 'ADMIN' && <span className="text-[10px] text-red-600 font-mono font-medium">(Mitigations)</span>}
+                  </div>
                   {user.role === r && <CheckCircle className="w-3.5 h-3.5 text-blue-600" />}
                 </button>
               ))}
+
+              <div className="border-t border-slate-100 mt-1 pt-1">
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 transition font-medium"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign Out of Session
+                </button>
+              </div>
             </div>
           )}
         </div>

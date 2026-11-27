@@ -30,18 +30,32 @@ MOCK_USERS = {
         "full_name": "ML/SDN Researcher",
         "password_hash": get_password_hash("ResearcherPass2026!"),
     },
+    "viewer": {
+        "id": "USR-004",
+        "username": "viewer",
+        "email": "viewer@sentinel-x.lan",
+        "role": "VIEWER",
+        "full_name": "SOC Dashboard Observer",
+        "password_hash": get_password_hash("ViewerPass2026!"),
+    },
 }
 
 @router.post("/login", response_model=Token)
 async def login(credentials: UserLogin):
-    user = MOCK_USERS.get(credentials.username)
+    username_lower = credentials.username.strip().lower()
+    user = MOCK_USERS.get(username_lower)
+    
     if not user:
-        # For demo ease, authenticate generic valid user
-        user = {
-            "username": credentials.username,
-            "role": "ADMIN" if "admin" in credentials.username.lower() else "ANALYST",
-            "password_hash": get_password_hash(credentials.password),
-        }
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username. Please check your credentials.",
+        )
+    
+    if not verify_password(credentials.password, user["password_hash"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid password. Please check your credentials.",
+        )
 
     access_token = create_access_token(data={"sub": user["username"], "role": user["role"]})
     return Token(
@@ -53,7 +67,7 @@ async def login(credentials: UserLogin):
 
 @router.get("/me", response_model=UserResponse)
 async def get_me(current_user: TokenData = Depends(get_current_user)):
-    user_info = MOCK_USERS.get(current_user.username, {
+    user_info = MOCK_USERS.get(current_user.username.lower(), {
         "id": "USR-GENERIC",
         "username": current_user.username,
         "email": f"{current_user.username}@sentinel-x.lan",

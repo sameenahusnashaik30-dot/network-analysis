@@ -60,7 +60,7 @@ export const Incidents: React.FC = () => {
         <button
           onClick={refresh}
           disabled={loading}
-          className="px-3 py-1.5 rounded-lg bg-soc-panelLight border border-soc-border hover:border-soc-cyan/40 text-xs font-mono text-soc-text hover:text-soc-cyan transition flex items-center gap-1.5"
+          className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-xs font-medium text-slate-700 transition flex items-center gap-1.5 shadow-sm"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh Incidents
@@ -70,23 +70,23 @@ export const Incidents: React.FC = () => {
       {/* Search and Filters */}
       <div className="soc-card p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-soc-dim absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search incident ID, IP, attack type..."
-            className="w-full bg-soc-bg border border-soc-border rounded-lg pl-9 pr-3 py-1.5 text-xs text-soc-text placeholder-soc-dim focus:outline-none focus:border-soc-cyan font-mono"
+            placeholder="Search incident ID, IP, host, or attack..."
+            className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 font-sans shadow-xs"
           />
         </div>
 
-        <div className="flex items-center gap-3 self-start md:self-auto flex-wrap text-xs font-mono">
+        <div className="flex items-center gap-3 self-start md:self-auto flex-wrap text-xs">
           <div className="flex items-center gap-1.5">
-            <span className="text-soc-dim">Severity:</span>
+            <span className="text-slate-500 font-medium">Severity:</span>
             <select
               value={severityFilter}
               onChange={(e) => setSeverityFilter(e.target.value)}
-              className="bg-soc-bg border border-soc-border rounded px-2 py-1 text-white focus:outline-none"
+              className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-slate-900 focus:outline-none text-xs font-sans shadow-xs"
             >
               <option value="ALL">All Severities</option>
               <option value="CRITICAL">Critical</option>
@@ -97,11 +97,11 @@ export const Incidents: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-soc-dim">Status:</span>
+            <span className="text-slate-500 font-medium">Status:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-soc-bg border border-soc-border rounded px-2 py-1 text-white focus:outline-none"
+              className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-slate-900 focus:outline-none text-xs font-sans shadow-xs"
             >
               <option value="ALL">All Statuses</option>
               <option value="NEW">New</option>

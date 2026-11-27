@@ -48,7 +48,7 @@ export const Reports: React.FC = () => {
         title: `${reportType} — Generated Audit`,
         type: reportType,
         generated_at: new Date().toISOString(),
-        author: 'Security Administrator',
+        author: 'Security Operations Analyst',
         summary: `Automated assessment across OpenFlow flows, Hybrid AI confidence metrics, and human mitigation decisions.`,
         download_url: '#',
       };
@@ -71,33 +71,33 @@ export const Reports: React.FC = () => {
 
   return (
     <PageContainer
-      title="Security Reports & Empirical Research Metrics"
+      title="Security Reports & Empirical Metrics"
       subtitle="Comprehensive audit artifacts recording system performance, zero-day discovery efficacy, explanation stability, and OpenFlow controller latency."
       isDemo={isDemo}
     >
       {/* Report Generator Control Card */}
       <div className="soc-card space-y-4">
-        <div className="flex items-center justify-between border-b border-soc-border pb-3">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
           <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-soc-cyan" />
-            <h3 className="text-base font-semibold text-white tracking-wide">
+            <FileText className="w-5 h-5 text-blue-600" />
+            <h3 className="text-sm font-semibold text-slate-900">
               Generate Research & Compliance Report
             </h3>
           </div>
-          <span className="text-xs font-mono text-soc-dim">
+          <span className="text-xs text-slate-500 font-medium">
             Standard Formats: PDF / CSV / JSON
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           <div className="sm:col-span-2">
-            <label className="text-soc-dim block mb-1.5 uppercase text-[11px]">
+            <label className="text-slate-600 block mb-1.5 uppercase text-[11px] font-semibold">
               Select Report Profile
             </label>
             <select
               value={reportType}
               onChange={(e) => setReportType(e.target.value)}
-              className="w-full bg-soc-bg border border-soc-border rounded-lg p-2.5 text-white focus:outline-none focus:border-soc-cyan"
+              className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 text-xs shadow-xs"
             >
               <option value="Daily Security Report">Daily Security Report (Full SDN Telemetry)</option>
               <option value="Zero-Day Report">Zero-Day Open-Set Detection Report</option>
@@ -112,7 +112,7 @@ export const Reports: React.FC = () => {
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="w-full py-2.5 px-4 rounded-lg bg-soc-cyan hover:bg-soc-cyanGlow text-black font-bold text-xs font-mono transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-950/40"
+              className="w-full py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition flex items-center justify-center gap-2 shadow-sm"
             >
               <PlusCircle className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
               {generating ? 'Compiling Metrics...' : 'Generate Report'}
@@ -123,19 +123,19 @@ export const Reports: React.FC = () => {
 
       {/* Available Reports Table */}
       <div className="soc-card space-y-4">
-        <div className="flex items-center justify-between border-b border-soc-border pb-3">
-          <h3 className="text-base font-semibold text-white tracking-wide">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+          <h3 className="text-sm font-semibold text-slate-900">
             Historical Audit Reports
           </h3>
-          <span className="text-xs font-mono text-soc-dim">
+          <span className="text-xs text-slate-500 font-medium">
             {reports.length} Artifacts Archived
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono">
+          <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-soc-border text-soc-dim uppercase text-[10px]">
+              <tr className="border-b border-slate-200 text-slate-500 uppercase text-[11px] font-semibold bg-slate-50/50">
                 <th className="py-2.5 px-3">Report ID</th>
                 <th className="py-2.5 px-3">Title / Scope</th>
                 <th className="py-2.5 px-3">Category</th>
@@ -144,35 +144,35 @@ export const Reports: React.FC = () => {
                 <th className="py-2.5 px-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-soc-border/50">
+            <tbody className="divide-y divide-slate-100">
               {reports.map((rep) => (
-                <tr key={rep.report_id} className="hover:bg-soc-panelLight/40 transition">
-                  <td className="py-3 px-3 font-bold text-soc-cyan">{rep.report_id}</td>
-                  <td className="py-3 px-3 font-sans font-medium text-white">{rep.title}</td>
-                  <td className="py-3 px-3">
-                    <span className="soc-badge bg-soc-panelLight text-soc-muted border border-soc-border">
+                <tr key={rep.report_id} className="hover:bg-slate-50/80 transition">
+                  <td className="py-2.5 px-3 font-semibold text-blue-600 font-mono">{rep.report_id}</td>
+                  <td className="py-2.5 px-3 font-medium text-slate-900">{rep.title}</td>
+                  <td className="py-2.5 px-3">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
                       {rep.type}
                     </span>
                   </td>
-                  <td className="py-3 px-3 text-soc-dim">{formatFullDate(rep.generated_at)}</td>
-                  <td className="py-3 px-3 text-soc-muted">{rep.author}</td>
-                  <td className="py-3 px-3 text-right">
+                  <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">{formatFullDate(rep.generated_at)}</td>
+                  <td className="py-2.5 px-3 text-slate-600">{rep.author}</td>
+                  <td className="py-2.5 px-3 text-right">
                     <div className="flex items-center justify-end gap-1.5 font-sans">
                       <button
                         onClick={() => {
                           setSelectedReport(rep);
                           setPreviewOpen(true);
                         }}
-                        className="px-2.5 py-1 rounded bg-soc-panelLight hover:bg-soc-border border border-soc-border text-soc-cyan transition text-xs flex items-center gap-1 font-mono"
+                        className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 transition text-xs font-medium flex items-center gap-1 shadow-xs"
                       >
-                        <Eye className="w-3 h-3" />
+                        <Eye className="w-3.5 h-3.5 text-blue-600" />
                         Preview
                       </button>
                       <button
                         onClick={() => handleDownloadCSV(rep)}
-                        className="px-2.5 py-1 rounded bg-soc-cyan/15 hover:bg-soc-cyan/25 text-soc-cyan border border-soc-cyan/30 transition text-xs flex items-center gap-1 font-mono"
+                        className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 transition text-xs font-medium flex items-center gap-1 shadow-xs"
                       >
-                        <Download className="w-3 h-3" />
+                        <Download className="w-3.5 h-3.5 text-slate-500" />
                         CSV
                       </button>
                     </div>
@@ -186,18 +186,18 @@ export const Reports: React.FC = () => {
 
       {/* Report Preview Modal */}
       {previewOpen && selectedReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-soc-panel border border-soc-border rounded-2xl w-full max-w-4xl p-6 space-y-6 shadow-2xl my-8">
-            <div className="flex items-center justify-between border-b border-soc-border pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-xl w-full max-w-4xl p-6 space-y-6 shadow-xl my-8">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-white">{selectedReport.title}</h3>
-                <span className="text-xs font-mono text-soc-dim">
+                <h3 className="text-base font-semibold text-slate-900">{selectedReport.title}</h3>
+                <span className="text-xs text-slate-500 font-mono">
                   Ref: {selectedReport.report_id} • Generated {formatFullDate(selectedReport.generated_at)}
                 </span>
               </div>
               <button
                 onClick={() => setPreviewOpen(false)}
-                className="text-soc-muted hover:text-white"
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -205,79 +205,79 @@ export const Reports: React.FC = () => {
 
             {/* Research Metrics Dashboard Grid */}
             <div className="space-y-4">
-              <h4 className="text-xs font-mono text-soc-dim uppercase">
-                Empirical Evaluation Metrics (PART 10 Acceptance Criteria)
+              <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                Empirical Evaluation Metrics
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">Model Accuracy</span>
-                  <span className="text-lg font-bold text-emerald-400">98.4%</span>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Model Accuracy</span>
+                  <span className="text-lg font-bold text-slate-900">98.4%</span>
                 </div>
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">Precision / Recall</span>
-                  <span className="text-lg font-bold text-soc-cyan">97.8% / 97.2%</span>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Precision / Recall</span>
+                  <span className="text-lg font-bold text-blue-600">97.8% / 97.2%</span>
                 </div>
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">F1-Score</span>
-                  <span className="text-lg font-bold text-purple-400">97.5%</span>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">F1-Score</span>
+                  <span className="text-lg font-bold text-purple-600">97.5%</span>
                 </div>
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">ROC-AUC</span>
-                  <span className="text-lg font-bold text-emerald-400">0.991</span>
-                </div>
-
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">Unknown Detection Rate</span>
-                  <span className="text-lg font-bold text-soc-cyan">89.2%</span>
-                </div>
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">False Positive Rate</span>
-                  <span className="text-lg font-bold text-amber-400">1.2%</span>
-                </div>
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">Detection Latency</span>
-                  <span className="text-lg font-bold text-white">4.8 ms</span>
-                </div>
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">Explanation Stability</span>
-                  <span className="text-lg font-bold text-emerald-400">87.0%</span>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">ROC-AUC</span>
+                  <span className="text-lg font-bold text-slate-900">0.991</span>
                 </div>
 
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">Adversarial Degradation</span>
-                  <span className="text-lg font-bold text-red-400">-14.2%</span>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Unknown Detection Rate</span>
+                  <span className="text-lg font-bold text-blue-600">89.2%</span>
                 </div>
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">Robustness Score</span>
-                  <span className="text-lg font-bold text-emerald-400">85.8 / 100</span>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">False Positive Rate</span>
+                  <span className="text-lg font-bold text-amber-600">1.2%</span>
                 </div>
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">Controller Overhead</span>
-                  <span className="text-lg font-bold text-white">+1.4 ms</span>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Detection Latency</span>
+                  <span className="text-lg font-bold text-slate-900">4.8 ms</span>
                 </div>
-                <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-                  <span className="text-soc-dim block text-[10px]">Mitigation Response Time</span>
-                  <span className="text-lg font-bold text-soc-cyan">182 ms</span>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Explanation Stability</span>
+                  <span className="text-lg font-bold text-emerald-700">87.0%</span>
+                </div>
+
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Adversarial Degradation</span>
+                  <span className="text-lg font-bold text-red-600">-14.2%</span>
+                </div>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Robustness Score</span>
+                  <span className="text-lg font-bold text-slate-900">85.8 / 100</span>
+                </div>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Controller Overhead</span>
+                  <span className="text-lg font-bold text-slate-900">+1.4 ms</span>
+                </div>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Mitigation Latency</span>
+                  <span className="text-lg font-bold text-blue-600">182 ms</span>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-soc-bg border border-soc-border text-xs space-y-2">
-              <span className="font-mono text-soc-dim block uppercase text-[10px]">Executive Summary</span>
-              <p className="text-soc-text leading-relaxed font-sans">{selectedReport.summary}</p>
+            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+              <span className="font-semibold text-slate-700 block uppercase text-[10px]">Executive Summary</span>
+              <p className="text-slate-700 leading-relaxed font-sans">{selectedReport.summary}</p>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-soc-border font-mono text-xs">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 text-xs">
               <button
                 onClick={() => window.print()}
-                className="px-4 py-2 rounded-lg bg-soc-panelLight border border-soc-border text-soc-text hover:text-white transition flex items-center gap-1.5"
+                className="px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition flex items-center gap-1.5 font-medium shadow-xs"
               >
                 <Printer className="w-3.5 h-3.5" />
-                Print PDF Report
+                Print Report
               </button>
               <button
                 onClick={() => handleDownloadCSV(selectedReport)}
-                className="px-4 py-2 rounded-lg bg-soc-cyan text-black font-bold hover:bg-soc-cyanGlow transition flex items-center gap-1.5"
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition flex items-center gap-1.5 shadow-sm"
               >
                 <Download className="w-3.5 h-3.5" />
                 Export CSV Data

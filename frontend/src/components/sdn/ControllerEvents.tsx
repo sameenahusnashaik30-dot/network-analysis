@@ -11,28 +11,28 @@ export const ControllerEvents: React.FC<ControllerEventsProps> = ({ events }) =>
   const getEventBadge = (type: string) => {
     switch (type) {
       case 'PACKET_IN':
-        return 'bg-amber-500/15 text-amber-400 border border-amber-500/30';
+        return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'FLOW_MOD':
-        return 'bg-soc-cyan/15 text-soc-cyan border border-soc-cyan/30';
+        return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'SWITCH_ENTER':
       case 'SWITCH_LEAVE':
-        return 'bg-soc-purple/15 text-soc-purple border border-soc-purple/30';
+        return 'bg-purple-50 text-purple-700 border-purple-200';
       default:
-        return 'bg-red-500/15 text-red-400 border border-red-500/30';
+        return 'bg-red-50 text-red-700 border-red-200';
     }
   };
 
   return (
     <div className="soc-card space-y-4">
-      <div className="flex items-center justify-between border-b border-soc-border pb-3">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
         <div className="flex items-center gap-2">
-          <Radio className="w-4 h-4 text-soc-cyan animate-pulse" />
-          <h3 className="text-base font-semibold text-white tracking-wide">
+          <Radio className="w-4 h-4 text-blue-600" />
+          <h3 className="text-sm font-semibold text-slate-900">
             SDN Controller Event Log
           </h3>
         </div>
-        <span className="text-xs font-mono text-soc-dim">
-          Real-Time OpenFlow Messages
+        <span className="text-xs text-slate-500 font-medium">
+          Real-Time OpenFlow Telemetry Messages
         </span>
       </div>
 
@@ -40,27 +40,27 @@ export const ControllerEvents: React.FC<ControllerEventsProps> = ({ events }) =>
         {events.map((evt) => (
           <div
             key={evt.event_id}
-            className="p-3 rounded-xl bg-soc-bg border border-soc-border flex items-start gap-3 hover:border-soc-borderLight transition"
+            className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-3 hover:bg-slate-100/60 transition"
           >
-            <div className="p-1.5 rounded-lg bg-soc-panelLight border border-soc-border flex-shrink-0 text-soc-cyan">
+            <div className="p-1.5 rounded-lg bg-white border border-slate-200 flex-shrink-0 text-blue-600 shadow-xs">
               <Zap className="w-4 h-4" />
             </div>
 
             <div className="flex-1 space-y-1">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
-                  <span className={`soc-badge ${getEventBadge(evt.event_type)}`}>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${getEventBadge(evt.event_type)}`}>
                     {evt.event_type}
                   </span>
-                  <span className="text-xs font-mono text-soc-dim">
-                    Switch DPID: <strong className="text-white">{evt.dpid}</strong>
+                  <span className="text-xs font-mono text-slate-500">
+                    Switch DPID: <strong className="text-slate-900">{evt.dpid}</strong>
                   </span>
                 </div>
-                <span className="text-[11px] font-mono text-soc-dim">
+                <span className="text-[11px] font-mono text-slate-400">
                   {formatTimestamp(evt.timestamp)}
                 </span>
               </div>
-              <p className="text-xs text-soc-text font-mono leading-relaxed">
+              <p className="text-xs text-slate-700 font-sans leading-relaxed">
                 {evt.details}
               </p>
             </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrainCircuit, ArrowUpRight } from 'lucide-react';
+import { BrainCircuit, ExternalLink } from 'lucide-react';
 import { ShapExplanation } from '../../types/xai';
 
 interface XAIExplanationCardProps {
@@ -9,42 +9,42 @@ interface XAIExplanationCardProps {
 
 export const XAIExplanationCard: React.FC<XAIExplanationCardProps> = ({ shap, onOpenXAI }) => {
   return (
-    <div className="soc-card flex flex-col justify-between">
+    <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-md bg-soc-purple/20 text-soc-purple border border-soc-purple/30">
+            <div className="p-1.5 rounded-md bg-purple-50 text-purple-600 border border-purple-100">
               <BrainCircuit className="w-4 h-4" />
             </div>
-            <h3 className="text-sm font-semibold text-white tracking-wide">AI Explanation — SHAP</h3>
+            <h3 className="text-sm font-semibold text-slate-900 tracking-tight">AI Explanation — SHAP</h3>
           </div>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-soc-purple/10 text-soc-purple border border-soc-purple/20">
-            Local Shapley Values
+          <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+            Shapley Attributions
           </span>
         </div>
 
-        <p className="text-xs text-soc-dim mb-3">
-          Feature contribution breakdown for latest high-risk flow:
+        <p className="text-xs text-slate-500 mb-3">
+          Top feature contributions for latest flagged high-risk flow:
         </p>
 
         {shap ? (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {shap.features.slice(0, 5).map((f) => {
               const absVal = Math.abs(f.contribution);
               const percent = Math.min(100, Math.round(absVal * 120));
               return (
                 <div key={f.feature_name} className="text-xs">
-                  <div className="flex items-center justify-between text-soc-muted mb-1 font-mono">
-                    <span className="text-[11px] text-soc-text font-medium">{f.feature_name}</span>
+                  <div className="flex items-center justify-between text-slate-600 mb-1">
+                    <span className="text-[11px] font-medium text-slate-800">{f.feature_name}</span>
                     <span
-                      className={`font-semibold ${
-                        f.contribution >= 0 ? 'text-red-400' : 'text-emerald-400'
+                      className={`font-semibold font-mono text-[11px] ${
+                        f.contribution >= 0 ? 'text-red-600' : 'text-emerald-600'
                       }`}
                     >
                       {f.contribution >= 0 ? `+${f.contribution}` : f.contribution}
                     </span>
                   </div>
-                  <div className="w-full bg-soc-bg rounded-full h-1.5 overflow-hidden">
+                  <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                     <div
                       className={`h-full rounded-full ${
                         f.contribution >= 0 ? 'bg-red-500' : 'bg-emerald-500'
@@ -57,19 +57,22 @@ export const XAIExplanationCard: React.FC<XAIExplanationCardProps> = ({ shap, on
             })}
           </div>
         ) : (
-          <div className="py-6 text-center text-xs font-mono text-soc-dim">
-            Explanation unavailable — model explanation service not connected
+          <div className="py-6 text-center text-xs text-slate-400">
+            No local explanation loaded.
           </div>
         )}
       </div>
 
-      <div className="mt-4 pt-3 border-t border-soc-border/60">
+      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <span className="text-xs text-slate-500">
+          Target: {shap?.target_class || 'Candidate'}
+        </span>
         <button
           onClick={onOpenXAI}
-          className="w-full py-2 rounded-lg bg-soc-panelLight border border-soc-border hover:border-soc-purple/40 text-xs font-medium text-soc-text hover:text-soc-purple transition flex items-center justify-center gap-1.5 font-mono"
+          className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
         >
-          View LIME & Stability Details
-          <ArrowUpRight className="w-3.5 h-3.5" />
+          Deep Investigation
+          <ExternalLink className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>

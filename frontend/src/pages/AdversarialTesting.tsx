@@ -20,7 +20,7 @@ export const AdversarialTesting: React.FC = () => {
   const { user, canRunAdversarial } = useAuth();
 
   // Test configuration
-  const [model, setModel] = useState<'XGBoost Classifier' | 'Random Forest' | 'Deep Autoencoder'>('XGBoost Classifier');
+  const [model, setModel] = useState<'XGBoost Classifier' | 'Random Forest' | 'Deep Autoencoder'>('Random Forest');
   const [dataset, setDataset] = useState<'CIC-IDS2017 SDN Test Subset' | 'In-Distribution Normal Flow Baseline'>('CIC-IDS2017 SDN Test Subset');
   const [attackCategory, setAttackCategory] = useState<'Feature Perturbation' | 'Traffic Timing Evasion' | 'Payload Size Morphing' | 'Gaussian Noise'>('Feature Perturbation');
   const [epsilon, setEpsilon] = useState<number>(0.12);
@@ -89,7 +89,7 @@ export const AdversarialTesting: React.FC = () => {
         result ? (
           <button
             onClick={handleExport}
-            className="px-3.5 py-1.5 rounded-lg bg-soc-cyan/15 border border-soc-cyan/40 hover:bg-soc-cyan/25 text-xs font-mono text-soc-cyan transition flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm"
           >
             <Download className="w-3.5 h-3.5" />
             Export Experiment Results
@@ -98,58 +98,58 @@ export const AdversarialTesting: React.FC = () => {
       }
     >
       {/* Defensive Purpose Notice */}
-      <div className="p-4 rounded-xl bg-soc-cyan/10 border border-soc-cyan/30 text-xs text-soc-text flex items-start gap-3">
-        <ShieldCheck className="w-5 h-5 text-soc-cyan flex-shrink-0 mt-0.5" />
+      <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200 text-xs text-slate-700 flex items-start gap-3">
+        <ShieldCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <strong className="text-white block font-mono">
+          <strong className="text-slate-900 block font-semibold">
             Defensive Robustness Verification Mandate
           </strong>
-          <p className="text-soc-muted leading-relaxed">
-            Per PRD guidelines, this interface provides <strong>defensive resilience evaluation only</strong> on controlled offline evaluation splits. It does not automate live adversarial attacks on external infrastructure.
+          <p className="text-slate-600 leading-relaxed font-sans">
+            This module provides <strong>defensive resilience evaluation only</strong> on controlled offline benchmark splits. It measures how classification accuracy and false-alarm rates degrade when flow features are deliberately perturbed.
           </p>
         </div>
       </div>
 
       {/* Configuration Panel */}
       <div className="soc-card space-y-4">
-        <div className="flex items-center justify-between border-b border-soc-border pb-3">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
           <div className="flex items-center gap-2">
-            <Sliders className="w-4 h-4 text-soc-purple" />
-            <h3 className="text-base font-semibold text-white tracking-wide">
+            <Sliders className="w-4 h-4 text-purple-600" />
+            <h3 className="text-sm font-semibold text-slate-900">
               Experiment Configuration
             </h3>
           </div>
-          <span className="text-xs font-mono text-soc-dim">
+          <span className="text-xs text-slate-500 font-medium">
             Authorized for: RESEARCHER & ADMIN
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           {/* Model Selector */}
           <div>
-            <label className="text-soc-dim block mb-1.5 uppercase text-[11px] flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-soc-cyan" /> Select AI Model
+            <label className="text-slate-600 block mb-1.5 uppercase text-[11px] font-semibold flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5 text-blue-600" /> Select AI Model
             </label>
             <select
               value={model}
               onChange={(e) => setModel(e.target.value as any)}
-              className="w-full bg-soc-bg border border-soc-border rounded-lg p-2.5 text-white focus:outline-none focus:border-soc-cyan"
+              className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 text-xs shadow-xs"
             >
-              <option value="XGBoost Classifier">XGBoost Classifier (Layer A)</option>
               <option value="Random Forest">Random Forest Classifier (Layer A)</option>
+              <option value="XGBoost Classifier">XGBoost Classifier (Layer A)</option>
               <option value="Deep Autoencoder">Deep Autoencoder (Layer B)</option>
             </select>
           </div>
 
           {/* Dataset Selector */}
           <div>
-            <label className="text-soc-dim block mb-1.5 uppercase text-[11px] flex items-center gap-1.5">
-              <Database className="w-3.5 h-3.5 text-soc-purple" /> Test Dataset
+            <label className="text-slate-600 block mb-1.5 uppercase text-[11px] font-semibold flex items-center gap-1.5">
+              <Database className="w-3.5 h-3.5 text-purple-600" /> Test Dataset
             </label>
             <select
               value={dataset}
               onChange={(e) => setDataset(e.target.value as any)}
-              className="w-full bg-soc-bg border border-soc-border rounded-lg p-2.5 text-white focus:outline-none focus:border-soc-purple"
+              className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 text-xs shadow-xs"
             >
               <option value="CIC-IDS2017 SDN Test Subset">CIC-IDS2017 SDN Test Subset (2,500 flows)</option>
               <option value="In-Distribution Normal Flow Baseline">In-Distribution Normal Baseline</option>
@@ -158,13 +158,13 @@ export const AdversarialTesting: React.FC = () => {
 
           {/* Attack Category */}
           <div>
-            <label className="text-soc-dim block mb-1.5 uppercase text-[11px] flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-amber-400" /> Perturbation Category
+            <label className="text-slate-600 block mb-1.5 uppercase text-[11px] font-semibold flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-amber-600" /> Perturbation Category
             </label>
             <select
               value={attackCategory}
               onChange={(e) => setAttackCategory(e.target.value as any)}
-              className="w-full bg-soc-bg border border-soc-border rounded-lg p-2.5 text-white focus:outline-none focus:border-amber-400"
+              className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 text-xs shadow-xs"
             >
               <option value="Feature Perturbation">Feature Perturbation (Gradient Shift)</option>
               <option value="Traffic Timing Evasion">Traffic Timing Evasion (Packet Jitter)</option>
@@ -177,9 +177,9 @@ export const AdversarialTesting: React.FC = () => {
         {/* Sliders for Epsilon */}
         <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
           <div>
-            <div className="flex justify-between text-soc-dim mb-1">
-              <span>Perturbation Magnitude (ε):</span>
-              <strong className="text-soc-cyan">{(epsilon * 100).toFixed(0)}% ({epsilon.toFixed(2)})</strong>
+            <div className="flex justify-between text-slate-600 mb-1 font-sans">
+              <span className="font-medium">Perturbation Magnitude (ε):</span>
+              <strong className="text-blue-600 font-mono">{(epsilon * 100).toFixed(0)}% ({epsilon.toFixed(2)})</strong>
             </div>
             <input
               type="range"
@@ -188,14 +188,14 @@ export const AdversarialTesting: React.FC = () => {
               step="0.02"
               value={epsilon}
               onChange={(e) => setEpsilon(parseFloat(e.target.value))}
-              className="w-full accent-soc-cyan"
+              className="w-full accent-blue-600"
             />
           </div>
 
           <div>
-            <div className="flex justify-between text-soc-dim mb-1">
-              <span>Monte Carlo Iterations:</span>
-              <strong className="text-purple-400">{iterations} passes</strong>
+            <div className="flex justify-between text-slate-600 mb-1 font-sans">
+              <span className="font-medium">Monte Carlo Iterations:</span>
+              <strong className="text-purple-600 font-mono">{iterations} passes</strong>
             </div>
             <input
               type="range"
@@ -204,20 +204,20 @@ export const AdversarialTesting: React.FC = () => {
               step="10"
               value={iterations}
               onChange={(e) => setIterations(parseInt(e.target.value))}
-              className="w-full accent-soc-purple"
+              className="w-full accent-purple-600"
             />
           </div>
         </div>
 
         {/* Action Button */}
-        <div className="pt-3 border-t border-soc-border flex items-center justify-end gap-3">
+        <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-3">
           <button
             onClick={handleRunTest}
             disabled={isRunning || !canRunAdversarial}
-            className={`px-5 py-2.5 rounded-lg text-xs font-bold transition flex items-center gap-2 font-mono shadow-lg ${
+            className={`px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 shadow-sm ${
               canRunAdversarial
-                ? 'bg-soc-cyan hover:bg-soc-cyanGlow text-black shadow-cyan-950/40'
-                : 'bg-soc-dim/40 text-soc-muted cursor-not-allowed'
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
             }`}
           >
             {isRunning ? (
@@ -228,7 +228,7 @@ export const AdversarialTesting: React.FC = () => {
             ) : (
               <>
                 <Play className="w-4 h-4" />
-                Execute Controlled Robustness Test
+                Execute Robustness Benchmark
               </>
             )}
           </button>
@@ -238,42 +238,42 @@ export const AdversarialTesting: React.FC = () => {
       {/* Results Presentation (Before vs After) */}
       {result && (
         <div className="soc-card space-y-6">
-          <div className="flex items-center justify-between border-b border-soc-border pb-3">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div>
-              <h3 className="text-base font-semibold text-white tracking-wide">
+              <h3 className="text-sm font-semibold text-slate-900">
                 Robustness Benchmark Results
               </h3>
-              <p className="text-xs text-soc-dim font-mono">
+              <p className="text-xs text-slate-500 font-sans">
                 Evaluated {result.tested_samples} samples across {iterations} noise iterations in {result.execution_time_ms}ms
               </p>
             </div>
-            <span className="soc-badge bg-soc-cyan/15 text-soc-cyan border border-soc-cyan/30">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
               Score: {result.robustness_score} / 100
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Before Perturbation */}
-            <div className="p-4 rounded-xl bg-soc-bg border border-soc-border space-y-3">
-              <span className="soc-badge bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 Baseline (Unperturbed)
               </span>
               <div className="grid grid-cols-3 gap-2 font-mono text-xs pt-1">
-                <div className="p-2.5 rounded bg-soc-panel">
-                  <span className="text-soc-dim block text-[10px]">Accuracy</span>
-                  <span className="text-lg font-bold text-emerald-400">
+                <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Accuracy</span>
+                  <span className="text-lg font-bold text-slate-900">
                     {(result.baseline.accuracy * 100).toFixed(1)}%
                   </span>
                 </div>
-                <div className="p-2.5 rounded bg-soc-panel">
-                  <span className="text-soc-dim block text-[10px]">Detection Rate</span>
-                  <span className="text-lg font-bold text-soc-cyan">
+                <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Detection Rate</span>
+                  <span className="text-lg font-bold text-blue-600">
                     {(result.baseline.detection_rate * 100).toFixed(1)}%
                   </span>
                 </div>
-                <div className="p-2.5 rounded bg-soc-panel">
-                  <span className="text-soc-dim block text-[10px]">False Pos. Rate</span>
-                  <span className="text-lg font-bold text-soc-muted">
+                <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">False Pos. Rate</span>
+                  <span className="text-lg font-bold text-slate-600">
                     {(result.baseline.fpr * 100).toFixed(2)}%
                   </span>
                 </div>
@@ -281,26 +281,26 @@ export const AdversarialTesting: React.FC = () => {
             </div>
 
             {/* After Perturbation */}
-            <div className="p-4 rounded-xl bg-soc-bg border border-red-500/30 space-y-3">
-              <span className="soc-badge bg-red-500/15 text-red-400 border border-red-500/30">
+            <div className="p-4 rounded-xl bg-red-50/40 border border-red-200 space-y-3">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
                 Under Perturbation (ε={epsilon})
               </span>
               <div className="grid grid-cols-3 gap-2 font-mono text-xs pt-1">
-                <div className="p-2.5 rounded bg-soc-panel">
-                  <span className="text-soc-dim block text-[10px]">Accuracy</span>
-                  <span className="text-lg font-bold text-amber-400">
+                <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Accuracy</span>
+                  <span className="text-lg font-bold text-amber-600">
                     {(result.perturbed.accuracy * 100).toFixed(1)}%
                   </span>
                 </div>
-                <div className="p-2.5 rounded bg-soc-panel">
-                  <span className="text-soc-dim block text-[10px]">Detection Rate</span>
-                  <span className="text-lg font-bold text-red-400">
+                <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">Detection Rate</span>
+                  <span className="text-lg font-bold text-red-600">
                     {(result.perturbed.detection_rate * 100).toFixed(1)}%
                   </span>
                 </div>
-                <div className="p-2.5 rounded bg-soc-panel">
-                  <span className="text-soc-dim block text-[10px]">False Pos. Rate</span>
-                  <span className="text-lg font-bold text-amber-400">
+                <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] font-sans font-semibold">False Pos. Rate</span>
+                  <span className="text-lg font-bold text-amber-600">
                     {(result.perturbed.fpr * 100).toFixed(2)}%
                   </span>
                 </div>
@@ -310,23 +310,23 @@ export const AdversarialTesting: React.FC = () => {
 
           {/* Summary Metric Ribbon */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono text-xs">
-            <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-              <span className="text-soc-dim block text-[10px]">Performance Degradation</span>
-              <span className="text-xl font-bold text-red-400 mt-1 block">
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <span className="text-slate-500 block text-[10px] font-sans font-semibold">Performance Degradation</span>
+              <span className="text-xl font-bold text-red-600 mt-1 block">
                 -{result.performance_degradation}%
               </span>
             </div>
 
-            <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-              <span className="text-soc-dim block text-[10px]">Adversarial Robustness Score</span>
-              <span className="text-xl font-bold text-emerald-400 mt-1 block">
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <span className="text-slate-500 block text-[10px] font-sans font-semibold">Adversarial Robustness Score</span>
+              <span className="text-xl font-bold text-slate-900 mt-1 block">
                 {result.robustness_score} / 100
               </span>
             </div>
 
-            <div className="p-3 rounded-lg bg-soc-bg border border-soc-border">
-              <span className="text-soc-dim block text-[10px]">Defensive Recommendation</span>
-              <span className="text-xs font-semibold text-soc-text mt-1 block">
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <span className="text-slate-500 block text-[10px] font-sans font-semibold">Defensive Recommendation</span>
+              <span className="text-xs font-semibold text-slate-800 mt-1 block font-sans">
                 Deploy feature squashing & adversarial training retuning
               </span>
             </div>

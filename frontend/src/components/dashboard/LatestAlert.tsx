@@ -17,47 +17,50 @@ export const LatestAlert: React.FC<LatestAlertProps> = ({
 }) => {
   if (!incident) {
     return (
-      <div className="soc-card flex items-center justify-center py-8 text-soc-dim text-xs font-mono">
-        No active critical alerts detected.
+      <div className="bg-white border border-slate-200 rounded-lg p-6 text-center text-slate-500 text-xs shadow-sm">
+        No active critical alerts detected in the network.
       </div>
     );
   }
 
   return (
-    <div className="soc-card border-red-500/30 bg-gradient-to-r from-red-950/20 via-soc-panel to-soc-panel relative overflow-hidden">
-      {/* Background indicator bar */}
-      <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-red-500" />
-
+    <div className="bg-white border border-slate-200 border-l-4 border-l-red-600 rounded-lg p-5 shadow-sm">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        {/* Left Info */}
-        <div className="flex items-start gap-4">
-          <div className="p-3 rounded-xl bg-red-500/15 text-red-400 border border-red-500/30 flex-shrink-0 animate-pulse">
-            <ShieldAlert className="w-6 h-6" />
+        {/* Left Info Column */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800 uppercase tracking-wider">
+              HIGH PRIORITY
+            </span>
+            <span className="text-xs font-semibold text-slate-900">
+              {incident.is_zero_day_candidate ? 'Potential Unknown Threat' : incident.classification}
+            </span>
+            <span className="text-xs text-slate-400 font-mono">
+              ID: {incident.incident_id}
+            </span>
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="text-xs font-mono font-bold text-red-400 uppercase tracking-wider">
-                {incident.classification.toUpperCase()} DETECTED
-              </span>
-              <span className="soc-badge bg-red-500/15 text-red-400 border border-red-500/30">
-                {incident.severity}
-              </span>
-              <span className="text-xs font-mono text-soc-dim">
-                ID: {incident.incident_id}
-              </span>
-            </div>
+          <p className="text-xs text-slate-600">
+            Low known-classifier confidence ({Math.round(incident.confidence * 100)}%) with elevated anomaly score.
+          </p>
 
-            <p className="text-sm text-soc-text font-medium">
-              Traffic anomaly flagged: Low known-classifier confidence ({Math.round(incident.confidence * 100)}%) with extreme Autoencoder reconstruction error.
-            </p>
-
-            <div className="flex items-center gap-4 text-xs font-mono text-soc-muted pt-1">
-              <span>Src: <strong className="text-white">{incident.src_ip}:{incident.src_port}</strong></span>
-              <span>Dst: <strong className="text-white">{incident.dst_ip}:{incident.dst_port}</strong></span>
-              <span>Proto: <strong className="text-soc-cyan">{incident.protocol}</strong></span>
-              <span>Anomaly Score: <strong className="text-red-400">{incident.anomaly_score}</strong></span>
-            </div>
+          <div className="flex flex-wrap items-center gap-5 text-xs text-slate-600 pt-1">
+            <span>
+              <span className="text-slate-400">Source:</span>{' '}
+              <strong className="text-slate-900 font-mono">{incident.src_ip}:{incident.src_port}</strong>
+            </span>
+            <span>
+              <span className="text-slate-400">Destination:</span>{' '}
+              <strong className="text-slate-900 font-mono">{incident.dst_ip}:{incident.dst_port}</strong>
+            </span>
+            <span>
+              <span className="text-slate-400">Protocol:</span>{' '}
+              <strong className="text-slate-800 font-mono">{incident.protocol}</strong>
+            </span>
+            <span>
+              <span className="text-slate-400">Anomaly Score:</span>{' '}
+              <strong className="text-red-700 font-mono">{incident.anomaly_score}</strong>
+            </span>
           </div>
         </div>
 
@@ -65,24 +68,23 @@ export const LatestAlert: React.FC<LatestAlertProps> = ({
         <div className="flex items-center gap-2.5 flex-shrink-0 pt-2 lg:pt-0">
           <button
             onClick={() => onViewDetails(incident)}
-            className="px-3.5 py-2 rounded-lg bg-soc-panelLight border border-soc-border hover:border-soc-borderLight text-xs font-medium text-soc-text hover:text-white transition flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-md bg-white border border-slate-300 hover:bg-slate-50 text-xs font-medium text-slate-700 transition flex items-center gap-1.5 shadow-sm"
           >
-            <Eye className="w-3.5 h-3.5" />
+            <Eye className="w-3.5 h-3.5 text-slate-500" />
             View Details
           </button>
 
           <button
             onClick={() => onInvestigate(incident)}
-            className="px-3.5 py-2 rounded-lg bg-soc-cyan/15 border border-soc-cyan/40 hover:bg-soc-cyan/25 text-xs font-medium text-soc-cyan transition flex items-center gap-1.5 font-mono"
+            className="px-3 py-1.5 rounded-md bg-blue-50 border border-blue-200 hover:bg-blue-100 text-xs font-medium text-blue-700 transition flex items-center gap-1.5"
           >
             Investigate
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
 
-          {/* Block Flow button opens confirmation modal, NOT direct destructive execution */}
           <button
             onClick={() => onRequestBlock(incident)}
-            className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-[0_0_12px_rgba(239,68,68,0.3)]"
+            className="px-3.5 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm"
           >
             <ShieldBan className="w-3.5 h-3.5" />
             Block Flow

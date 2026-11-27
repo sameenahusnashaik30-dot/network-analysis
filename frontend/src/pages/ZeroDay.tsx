@@ -5,7 +5,7 @@ import { Incident, IncidentInvestigationData, IncidentStatus } from '../types/in
 import { SeverityBadge } from '../components/alerts/SeverityBadge';
 import { AlertDetails } from '../components/alerts/AlertDetails';
 import { MitigationModal } from '../components/mitigation/MitigationModal';
-import { formatBytes, formatDuration, formatTimestamp, formatFullDate } from '../utils/formatters';
+import { formatBytes, formatDuration, formatTimestamp, resolveDeviceType, resolveSoftwareService } from '../utils/formatters';
 import {
   ShieldAlert,
   Search,
@@ -18,7 +18,10 @@ import {
   Download,
   GitCompare,
   RefreshCw,
-  HelpCircle,
+  Info,
+  Server,
+  Activity,
+  Layers,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -33,6 +36,7 @@ export const ZeroDay: React.FC = () => {
   const [mitigationOpen, setMitigationOpen] = useState(false);
   const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const loadZeroDay = async () => {
     try {
@@ -80,53 +84,72 @@ export const ZeroDay: React.FC = () => {
   };
 
   const filteredThreats = threats.filter((t) => {
-    return statusFilter === 'ALL' || t.status === statusFilter;
+    const matchesStatus = statusFilter === 'ALL' || t.status === statusFilter;
+    const matchesSearch =
+      !searchTerm ||
+      t.incident_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.src_ip.includes(searchTerm) ||
+      t.dst_ip.includes(searchTerm) ||
+      resolveDeviceType(t.src_ip).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resolveSoftwareService(t.dst_port, t.protocol).toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
   });
 
   return (
     <PageContainer
-      title="Zero-Day Candidate Detection"
-      subtitle="Open-set recognition engine isolates novel zero-day attack candidates where known classifier confidence is low and Autoencoder reconstruction loss is anomalous."
+      title="Unknown Threat Detection"
+      subtitle="Open-set recognition isolates novel zero-day attack candidates where known classifier confidence is low and Autoencoder reconstruction loss is anomalous."
       isDemo={isDemo}
       actions={
         <button
           onClick={loadZeroDay}
           disabled={loading}
-          className="px-3 py-1.5 rounded-lg bg-soc-panelLight border border-soc-border hover:border-soc-cyan/40 text-xs font-mono text-soc-text hover:text-soc-cyan transition flex items-center gap-1.5"
+          className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-xs font-medium text-slate-700 transition flex items-center gap-1.5 shadow-sm"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Refresh Zero-Day Queue
+          Refresh Candidates
         </button>
       }
     >
-      {/* Research Methodology Alert */}
-      <div className="p-4 rounded-xl bg-soc-purple/10 border border-soc-purple/30 text-xs text-soc-text flex items-start gap-3">
-        <HelpCircle className="w-5 h-5 text-soc-purple flex-shrink-0 mt-0.5" />
+      {/* Detection Methodology Banner */}
+      <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200 text-xs text-slate-700 flex items-start gap-3">
+        <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <strong className="text-white block font-mono">
-            Open-World Decision Boundary Principle
+          <strong className="text-slate-900 block font-semibold text-xs">
+            Open-World Boundary & Hypothesis
           </strong>
-          <p className="text-soc-muted leading-relaxed">
-            Standard classifiers force anomalous packets into predefined classes (e.g., misclassifying novel exfiltration as HTTP brute force). SENTINEL-X establishes an open-set decision threshold: if maximum softmax confidence falls below 0.65 and latent autoencoder error exceeds 0.70, traffic is designated as an <strong>UNKNOWN / ZERO-DAY CANDIDATE</strong>.
+          <p className="text-slate-600 leading-relaxed">
+            Standard signature models force anomalous traffic into predefined classes. SENTINEL-X establishes an open-set decision threshold: if maximum softmax confidence falls below <strong>0.65</strong> and latent autoencoder error exceeds <strong>0.70</strong>, the traffic is designated as an <strong>UNKNOWN / ZERO-DAY CANDIDATE</strong>. Samples remain candidates pending analyst triage rather than asserted ground truth.
           </p>
         </div>
       </div>
 
-      {/* Filter Ribbon */}
-      <div className="soc-card p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
-        <span className="text-soc-dim">
-          Filter by Lifecycle Status:
-        </span>
+      {/* Filter and Search Ribbon */}
+      <div className="soc-card p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2 flex-1 max-w-md">
+          <div className="relative w-full">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              placeholder="Search by IP, Host, Device type, or Service..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 font-sans"
+            />
+          </div>
+        </div>
+
         <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-slate-500 text-xs font-medium mr-1">Status:</span>
           {['ALL', 'NEW', 'INVESTIGATING', 'CONFIRMED', 'FALSE_POSITIVE', 'MITIGATED', 'CLOSED'].map(
             (st) => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-2.5 py-1 rounded transition ${
+                className={`px-2.5 py-1 rounded text-xs transition ${
                   statusFilter === st
-                    ? 'bg-soc-cyan text-black font-bold'
-                    : 'bg-soc-bg border border-soc-border text-soc-muted hover:text-white'
+                    ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                    : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 {st}
@@ -136,103 +159,130 @@ export const ZeroDay: React.FC = () => {
         </div>
       </div>
 
-      {/* Zero-Day Table */}
+      {/* Candidate Incident Registry Table */}
       <div className="soc-card space-y-4">
-        <div className="flex items-center justify-between border-b border-soc-border pb-3">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
           <div className="flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-soc-cyan" />
-            <h3 className="text-base font-semibold text-white tracking-wide">
+            <ShieldAlert className="w-4 h-4 text-blue-600" />
+            <h3 className="text-sm font-semibold text-slate-900">
               Candidate Incident Registry
             </h3>
           </div>
-          <span className="text-xs font-mono text-soc-dim">
-            {filteredThreats.length} Flagged Candidates
+          <span className="text-xs text-slate-500 font-medium">
+            Showing {filteredThreats.length} of {threats.length} Flagged Candidates
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono">
+          <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-soc-border text-soc-dim uppercase text-[10px]">
+              <tr className="border-b border-slate-200 text-slate-500 uppercase text-[11px] font-semibold bg-slate-50/50">
                 <th className="py-2.5 px-3">Incident ID</th>
                 <th className="py-2.5 px-3">Severity</th>
-                <th className="py-2.5 px-3">Flow (Src → Dst)</th>
+                <th className="py-2.5 px-3">Source Device & IP</th>
+                <th className="py-2.5 px-3">Target Host & Service</th>
                 <th className="py-2.5 px-3">Proto</th>
-                <th className="py-2.5 px-3">Packets / Vol</th>
-                <th className="py-2.5 px-3">Rate</th>
-                <th className="py-2.5 px-3">Anomaly</th>
+                <th className="py-2.5 px-3">Volume</th>
+                <th className="py-2.5 px-3">Packet Rate</th>
+                <th className="py-2.5 px-3">Anomaly Score</th>
                 <th className="py-2.5 px-3">Unknown Prob</th>
                 <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3 text-right">Research Actions</th>
+                <th className="py-2.5 px-3 text-right">Analyst Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-soc-border/50">
-              {filteredThreats.map((inc) => (
-                <tr key={inc.incident_id} className="hover:bg-soc-panelLight/40 transition">
-                  <td className="py-3 px-3 font-bold text-soc-cyan">{inc.incident_id}</td>
-                  <td className="py-3 px-3">
-                    <SeverityBadge severity={inc.severity} />
-                  </td>
-                  <td className="py-3 px-3 text-white">
-                    {inc.src_ip}:{inc.src_port} → {inc.dst_ip}:{inc.dst_port}
-                  </td>
-                  <td className="py-3 px-3 text-soc-muted">{inc.protocol}</td>
-                  <td className="py-3 px-3 text-white">
-                    {inc.packet_count.toLocaleString()} ({formatBytes(inc.byte_count)})
-                  </td>
-                  <td className="py-3 px-3 text-amber-400">{inc.packet_rate.toFixed(1)} pps</td>
-                  <td className="py-3 px-3 text-red-400 font-bold">{inc.anomaly_score}</td>
-                  <td className="py-3 px-3 text-soc-purple font-bold">
-                    {Math.round((inc.unknown_score || 0.9) * 100)}%
-                  </td>
-                  <td className="py-3 px-3">
-                    <span className="soc-badge bg-soc-panelLight text-soc-muted border border-soc-border">
-                      {inc.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-right">
-                    <div className="flex items-center justify-end gap-1 font-sans">
-                      <button
-                        onClick={() => handleInvestigate(inc)}
-                        title="Open Investigation Workspace"
-                        className="p-1.5 rounded bg-soc-cyan/15 text-soc-cyan border border-soc-cyan/30 hover:bg-soc-cyan/25 transition"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        onClick={() => handleExportEvidence(inc)}
-                        title="Export Evidence JSON"
-                        className="p-1.5 rounded bg-soc-panelLight text-soc-muted border border-soc-border hover:text-white transition"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setSelectedIncident(inc);
-                          setComparisonModalOpen(true);
-                        }}
-                        title="Compare with Known Baseline Patterns"
-                        className="p-1.5 rounded bg-soc-panelLight text-soc-muted border border-soc-border hover:text-soc-purple transition"
-                      >
-                        <GitCompare className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setSelectedIncident(inc);
-                          setMitigationOpen(true);
-                        }}
-                        title="Approve & Block Flow"
-                        className="p-1.5 rounded bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/40 transition"
-                      >
-                        <ShieldBan className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+            <tbody className="divide-y divide-slate-100">
+              {filteredThreats.length === 0 ? (
+                <tr>
+                  <td colSpan={11} className="py-8 text-center text-slate-500">
+                    No zero-day candidates matching current filter criteria.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredThreats.map((inc) => {
+                  const srcDevice = resolveDeviceType(inc.src_ip);
+                  const dstService = resolveSoftwareService(inc.dst_port, inc.protocol);
+
+                  return (
+                    <tr key={inc.incident_id} className="hover:bg-slate-50/80 transition font-mono">
+                      <td className="py-2.5 px-3 font-semibold text-blue-600">{inc.incident_id}</td>
+                      <td className="py-2.5 px-3 font-sans">
+                        <SeverityBadge severity={inc.severity} />
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <div className="text-slate-900 font-medium">{inc.src_ip}:{inc.src_port}</div>
+                        <div className="text-[11px] text-slate-500 font-sans">{srcDevice}</div>
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <div className="text-slate-900 font-medium">{inc.dst_ip}:{inc.dst_port}</div>
+                        <div className="text-[11px] text-slate-500 font-sans">{dstService}</div>
+                      </td>
+                      <td className="py-2.5 px-3 text-slate-600">{inc.protocol}</td>
+                      <td className="py-2.5 px-3 text-slate-700">
+                        {inc.packet_count.toLocaleString()} pkts ({formatBytes(inc.byte_count)})
+                      </td>
+                      <td className="py-2.5 px-3 text-slate-900 font-medium">
+                        {inc.packet_rate.toFixed(1)} pps
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <span className="font-semibold text-red-600">{inc.anomaly_score}</span>
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <span className="font-semibold text-purple-700">
+                          {Math.round((inc.unknown_score || 0.9) * 100)}%
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 font-sans">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                          {inc.status}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-sans">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleInvestigate(inc)}
+                            title="Inspect Evidence & Telemetry"
+                            className="px-2 py-1 rounded bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 transition text-xs font-medium flex items-center gap-1"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-blue-600" />
+                            Investigate
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setSelectedIncident(inc);
+                              setComparisonModalOpen(true);
+                            }}
+                            title="Compare against baseline traffic profiles"
+                            className="p-1 rounded bg-white hover:bg-slate-100 border border-slate-300 text-slate-600 transition"
+                          >
+                            <GitCompare className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            onClick={() => handleExportEvidence(inc)}
+                            title="Download Evidence JSON"
+                            className="p-1 rounded bg-white hover:bg-slate-100 border border-slate-300 text-slate-600 transition"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setSelectedIncident(inc);
+                              setMitigationOpen(true);
+                            }}
+                            title="Open Mitigation Authorization"
+                            className="px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white transition text-xs font-medium flex items-center gap-1 shadow-sm"
+                          >
+                            <ShieldBan className="w-3.5 h-3.5" />
+                            Block
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -240,45 +290,49 @@ export const ZeroDay: React.FC = () => {
 
       {/* Comparison Modal */}
       {comparisonModalOpen && selectedIncident && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-soc-panel border border-soc-border rounded-2xl w-full max-w-3xl p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-soc-border pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <GitCompare className="w-4 h-4 text-soc-purple" />
-                Pattern Comparison: Unknown Incident vs Known Baselines
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white border border-slate-200 rounded-xl w-full max-w-3xl p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                <GitCompare className="w-4 h-4 text-purple-600" />
+                Pattern Comparison: Candidate Flow vs Baseline Profile
               </h3>
               <button
                 onClick={() => setComparisonModalOpen(false)}
-                className="text-soc-muted hover:text-white text-xs font-mono"
+                className="text-slate-400 hover:text-slate-600 text-xs font-medium"
               >
                 Close
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-xs font-mono">
-              <div className="p-4 rounded-xl bg-soc-bg border border-red-500/30 space-y-2">
-                <span className="soc-badge bg-red-500/20 text-red-400">Candidate Flow</span>
-                <div className="text-white font-bold">{selectedIncident.incident_id}</div>
-                <div>Packet Rate: <strong className="text-red-400">{selectedIncident.packet_rate} pps</strong></div>
-                <div>Byte Rate: <strong className="text-red-400">{formatBytes(selectedIncident.byte_rate)}/s</strong></div>
-                <div>Port: <strong className="text-white">{selectedIncident.dst_port}</strong></div>
-                <div>Flags: <strong className="text-white">{selectedIncident.tcp_flags || 'NONE'}</strong></div>
-                <div>Autoencoder Loss: <strong className="text-red-400">{selectedIncident.anomaly_score}</strong></div>
+              <div className="p-4 rounded-lg bg-red-50/50 border border-red-200 space-y-2">
+                <span className="inline-flex px-2 py-0.5 rounded text-[11px] font-semibold bg-red-100 text-red-800">
+                  Candidate Flow
+                </span>
+                <div className="text-slate-900 font-bold">{selectedIncident.incident_id}</div>
+                <div>Source Device: <strong className="text-slate-800">{resolveDeviceType(selectedIncident.src_ip)}</strong></div>
+                <div>Target Service: <strong className="text-slate-800">{resolveSoftwareService(selectedIncident.dst_port, selectedIncident.protocol)}</strong></div>
+                <div>Packet Rate: <strong className="text-red-700">{selectedIncident.packet_rate.toFixed(1)} pps</strong></div>
+                <div>Byte Rate: <strong className="text-red-700">{formatBytes(selectedIncident.byte_rate)}/s</strong></div>
+                <div>Autoencoder Loss: <strong className="text-red-700">{selectedIncident.anomaly_score}</strong></div>
               </div>
 
-              <div className="p-4 rounded-xl bg-soc-bg border border-emerald-500/30 space-y-2">
-                <span className="soc-badge bg-emerald-500/20 text-emerald-400">Baseline Normal Profile</span>
-                <div className="text-white font-bold">Standard OpenFlow Profile</div>
-                <div>Packet Rate: <strong className="text-emerald-400">&lt; 150 pps</strong></div>
-                <div>Byte Rate: <strong className="text-emerald-400">&lt; 20 KB/s</strong></div>
-                <div>Standard Ports: <strong className="text-white">80, 443, 53</strong></div>
-                <div>Flags: <strong className="text-white">ACK, PSH</strong></div>
-                <div>Autoencoder Loss: <strong className="text-emerald-400">&lt; 0.15</strong></div>
+              <div className="p-4 rounded-lg bg-emerald-50/50 border border-emerald-200 space-y-2">
+                <span className="inline-flex px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+                  Baseline Normal Profile
+                </span>
+                <div className="text-slate-900 font-bold">Standard OpenFlow Profile</div>
+                <div>Source Device: <strong className="text-slate-800">Validated Host</strong></div>
+                <div>Target Service: <strong className="text-slate-800">Standard Service</strong></div>
+                <div>Packet Rate: <strong className="text-emerald-700">&lt; 150 pps</strong></div>
+                <div>Byte Rate: <strong className="text-emerald-700">&lt; 20 KB/s</strong></div>
+                <div>Autoencoder Loss: <strong className="text-emerald-700">&lt; 0.15</strong></div>
               </div>
             </div>
 
-            <p className="text-xs text-soc-muted font-mono leading-relaxed pt-2">
-              <strong>Evaluation:</strong> Candidate deviates 4.8σ in packet rate and payload entropy. Nearest known centroid: DoS (distance = 2.41), exceeding open-set threshold $\tau = 1.20$. System correctly classifies as ZERO-DAY CANDIDATE instead of forcing into DoS.
+            <p className="text-xs text-slate-600 leading-relaxed pt-2 border-t border-slate-100 font-sans">
+              <strong>Evaluation:</strong> Candidate deviates significantly in packet rate and payload entropy. Nearest known centroid: DoS (distance = 2.41), exceeding open-set threshold τ = 1.20. The system appropriately flags this flow as an unknown candidate for review rather than forcing a false positive classification.
             </p>
           </div>
         </div>

@@ -79,8 +79,8 @@ export const Dashboard: React.FC = () => {
 
   return (
     <PageContainer
-      title="Security Operations Dashboard"
-      subtitle="Real-time OpenFlow telemetry, hybrid AI detection, and automated explainable evidence correlation."
+      title="Security Overview"
+      subtitle="Network telemetry, threat detection, and incident activity."
       isDemo={isDemo}
     >
       {/* Top Critical Alert Banner */}
@@ -91,7 +91,7 @@ export const Dashboard: React.FC = () => {
         onRequestBlock={handleOpenMitigation}
       />
 
-      {/* KPI Cards Grid */}
+      {/* Primary KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Total Flows"
@@ -100,7 +100,7 @@ export const Dashboard: React.FC = () => {
           change="+14.2% /hr"
           isPositive={true}
           icon={Activity}
-          colorVariant="cyan"
+          colorVariant="blue"
         />
         <KPICard
           title="Known Attacks"
@@ -131,35 +131,43 @@ export const Dashboard: React.FC = () => {
         />
       </div>
 
-      {/* Secondary KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-        <div className="p-3.5 rounded-xl bg-soc-panel border border-soc-border flex items-center justify-between">
+      {/* Operational Metrics Sub-Ribbon */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div className="p-3.5 rounded-lg bg-white border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-soc-dim block text-[10px] uppercase">Active Incidents</span>
-            <span className="text-lg font-bold text-red-400">{kpis.active_incidents} Active</span>
+            <span className="text-slate-500 block text-[11px] font-medium uppercase tracking-wider">Active Incidents</span>
+            <span className="text-lg font-bold text-red-600 font-mono mt-0.5 block">{kpis.active_incidents} Active</span>
           </div>
-          <AlertCircle className="w-5 h-5 text-red-400/80" />
+          <div className="p-2 rounded-md bg-red-50 text-red-600">
+            <AlertCircle className="w-4 h-4" />
+          </div>
         </div>
-        <div className="p-3.5 rounded-xl bg-soc-panel border border-soc-border flex items-center justify-between">
+        <div className="p-3.5 rounded-lg bg-white border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-soc-dim block text-[10px] uppercase">Anomaly Rate</span>
-            <span className="text-lg font-bold text-amber-400">{kpis.anomaly_rate}%</span>
+            <span className="text-slate-500 block text-[11px] font-medium uppercase tracking-wider">Anomaly Rate</span>
+            <span className="text-lg font-bold text-amber-700 font-mono mt-0.5 block">{kpis.anomaly_rate}%</span>
           </div>
-          <Zap className="w-5 h-5 text-amber-400/80" />
+          <div className="p-2 rounded-md bg-amber-50 text-amber-600">
+            <Zap className="w-4 h-4" />
+          </div>
         </div>
-        <div className="p-3.5 rounded-xl bg-soc-panel border border-soc-border flex items-center justify-between">
+        <div className="p-3.5 rounded-lg bg-white border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-soc-dim block text-[10px] uppercase">Controller Status</span>
-            <span className="text-lg font-bold text-emerald-400">{kpis.controller_status}</span>
+            <span className="text-slate-500 block text-[11px] font-medium uppercase tracking-wider">Controller Status</span>
+            <span className="text-lg font-bold text-emerald-700 font-mono mt-0.5 block">{kpis.controller_status}</span>
           </div>
-          <Network className="w-5 h-5 text-emerald-400/80" />
+          <div className="p-2 rounded-md bg-emerald-50 text-emerald-600">
+            <Network className="w-4 h-4" />
+          </div>
         </div>
-        <div className="p-3.5 rounded-xl bg-soc-panel border border-soc-border flex items-center justify-between">
+        <div className="p-3.5 rounded-lg bg-white border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-soc-dim block text-[10px] uppercase">Model Health</span>
-            <span className="text-lg font-bold text-soc-cyan">{kpis.model_health}</span>
+            <span className="text-slate-500 block text-[11px] font-medium uppercase tracking-wider">Model Health</span>
+            <span className="text-lg font-bold text-blue-700 font-mono mt-0.5 block">{kpis.model_health}</span>
           </div>
-          <Cpu className="w-5 h-5 text-soc-cyan/80" />
+          <div className="p-2 rounded-md bg-blue-50 text-blue-600">
+            <Cpu className="w-4 h-4" />
+          </div>
         </div>
       </div>
 
@@ -197,7 +205,6 @@ export const Dashboard: React.FC = () => {
           }}
           onOpenXAI={() => navigate('/xai')}
         />
-
         <SDNStatusCard
           status={{
             is_online: true,
@@ -214,13 +221,13 @@ export const Dashboard: React.FC = () => {
         />
       </div>
 
-      {/* Recent Security Events Table */}
+      {/* Recent Events Table */}
       <RecentEvents
         incidents={latestIncident ? [latestIncident] : []}
         onSelectIncident={handleInvestigate}
       />
 
-      {/* Mitigation Confirmation Modal (Human-in-the-Loop) */}
+      {/* Mitigation Action Modal */}
       <MitigationModal
         isOpen={mitigationModalOpen}
         incident={selectedIncidentForMitigation}
@@ -228,16 +235,14 @@ export const Dashboard: React.FC = () => {
         onConfirm={handleConfirmMitigation}
       />
 
-      {/* Deep Incident Investigation Workspace */}
+      {/* Investigation Details Modal */}
       {investigationModalOpen && (
         <AlertDetails
           data={investigationData}
           onClose={() => setInvestigationModalOpen(false)}
           onApproveBlock={() => {
             setInvestigationModalOpen(false);
-            if (investigationData) {
-              handleOpenMitigation(investigationData.incident);
-            }
+            if (investigationData) handleOpenMitigation(investigationData.incident);
           }}
           onSetStatus={handleUpdateStatus}
         />

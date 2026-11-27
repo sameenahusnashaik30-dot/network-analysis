@@ -45,14 +45,14 @@ export const SDNController: React.FC = () => {
   return (
     <PageContainer
       title="SDN Controller Telemetry & Management"
-      subtitle="Direct interface to Ryu OpenFlow 1.3 Controller. Inspect switch datapaths, active flow tables, packet-in buffering, and flow-mod installations."
+      subtitle="Direct interface to OpenFlow 1.3 Controller. Inspect switch datapaths, active flow tables, packet-in buffering, and flow-mod installations."
       isDemo={isDemo}
       actions={
         <div className="flex items-center gap-2">
           <button
             onClick={loadData}
             disabled={loading}
-            className="px-3 py-1.5 rounded-lg bg-soc-panelLight border border-soc-border text-xs font-mono text-soc-text hover:text-soc-cyan transition flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-xs font-medium text-slate-700 transition flex items-center gap-1.5 shadow-sm"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             Refresh Controller
@@ -71,24 +71,24 @@ export const SDNController: React.FC = () => {
 
       {/* Switch Inspection Drawer/Modal if clicked */}
       {selectedSwitch && (
-        <div className="soc-card border-soc-cyan/30 p-4 space-y-3 font-mono text-xs">
-          <div className="flex items-center justify-between border-b border-soc-border pb-2">
-            <span className="font-bold text-white flex items-center gap-2">
-              <Server className="w-4 h-4 text-soc-cyan" />
-              Switch Inspection: {selectedSwitch.name} ({selectedSwitch.dpid})
+        <div className="soc-card border-blue-200 bg-blue-50/30 p-4 space-y-3 font-mono text-xs">
+          <div className="flex items-center justify-between border-b border-blue-200 pb-2">
+            <span className="font-semibold text-slate-900 flex items-center gap-2 font-sans">
+              <Server className="w-4 h-4 text-blue-600" />
+              Switch Datapath Inspection: {selectedSwitch.name} ({selectedSwitch.dpid})
             </span>
             <button
               onClick={() => setSelectedSwitch(null)}
-              className="text-soc-muted hover:text-white"
+              className="text-slate-500 hover:text-slate-800 font-sans text-xs font-medium"
             >
               Close
             </button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div>IP: <strong className="text-white">{selectedSwitch.ip_address}</strong></div>
-            <div>Ports: <strong className="text-white">{selectedSwitch.ports_count} active</strong></div>
-            <div>Installed Rules: <strong className="text-white">{selectedSwitch.flow_count}</strong></div>
-            <div>Packet-In Rate: <strong className="text-amber-400">{selectedSwitch.packet_in_rate} pps</strong></div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-slate-700">
+            <div>Socket IP: <strong className="text-slate-900">{selectedSwitch.ip_address}</strong></div>
+            <div>Ports: <strong className="text-slate-900">{selectedSwitch.ports_count} active</strong></div>
+            <div>Installed Rules: <strong className="text-slate-900">{selectedSwitch.flow_count}</strong></div>
+            <div>Packet-In Rate: <strong className="text-amber-600 font-semibold">{selectedSwitch.packet_in_rate} pps</strong></div>
           </div>
         </div>
       )}

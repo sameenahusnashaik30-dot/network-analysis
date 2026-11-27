@@ -8,7 +8,7 @@ interface KPICardProps {
   icon: LucideIcon;
   change?: string;
   isPositive?: boolean;
-  colorVariant?: 'cyan' | 'purple' | 'red' | 'green' | 'orange';
+  colorVariant?: 'blue' | 'purple' | 'red' | 'green' | 'orange' | 'cyan';
 }
 
 export const KPICard: React.FC<KPICardProps> = ({
@@ -18,66 +18,43 @@ export const KPICard: React.FC<KPICardProps> = ({
   icon: Icon,
   change,
   isPositive,
-  colorVariant = 'cyan',
+  colorVariant = 'blue',
 }) => {
-  const colorMap = {
-    cyan: {
-      border: 'hover:border-soc-cyan/40',
-      iconBg: 'bg-soc-cyan/15 text-soc-cyan border-soc-cyan/30',
-      glow: 'shadow-[0_0_15px_rgba(6,182,212,0.08)]',
-    },
-    purple: {
-      border: 'hover:border-soc-purple/40',
-      iconBg: 'bg-soc-purple/15 text-soc-purple border-soc-purple/30',
-      glow: 'shadow-[0_0_15px_rgba(139,92,246,0.08)]',
-    },
-    red: {
-      border: 'hover:border-soc-red/40',
-      iconBg: 'bg-soc-red/15 text-soc-red border-soc-red/30',
-      glow: 'shadow-[0_0_15px_rgba(239,68,68,0.08)]',
-    },
-    green: {
-      border: 'hover:border-soc-green/40',
-      iconBg: 'bg-soc-green/15 text-soc-green border-soc-green/30',
-      glow: 'shadow-[0_0_15px_rgba(16,185,129,0.08)]',
-    },
-    orange: {
-      border: 'hover:border-soc-orange/40',
-      iconBg: 'bg-soc-orange/15 text-soc-orange border-soc-orange/30',
-      glow: 'shadow-[0_0_15px_rgba(245,158,11,0.08)]',
-    },
+  const iconColors = {
+    blue: 'bg-blue-50 text-blue-600 border border-blue-100',
+    purple: 'bg-purple-50 text-purple-600 border border-purple-100',
+    red: 'bg-red-50 text-red-600 border border-red-100',
+    green: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+    orange: 'bg-amber-50 text-amber-600 border border-amber-100',
+    cyan: 'bg-sky-50 text-sky-600 border border-sky-100',
   };
 
-  const style = colorMap[colorVariant];
+  const badgeStyle = iconColors[colorVariant] || iconColors.blue;
 
   return (
-    <div
-      className={`soc-card soc-card-hover ${style.border} ${style.glow} flex flex-col justify-between`}
-    >
+    <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm hover:border-slate-300 transition-colors flex flex-col justify-between">
       <div className="flex items-start justify-between">
         <div>
-          <span className="text-xs uppercase tracking-wider font-mono text-soc-muted">{title}</span>
-          <div className="text-2xl font-bold tracking-tight text-white mt-1 font-mono">{value}</div>
+          <span className="text-xs uppercase tracking-wider font-medium text-slate-500">{title}</span>
+          <div className="text-2xl font-bold tracking-tight text-slate-900 mt-1 font-mono">{value}</div>
         </div>
-        <div className={`p-2.5 rounded-lg border ${style.iconBg}`}>
-          <Icon className="w-5 h-5" />
+        <div className={`p-2 rounded-md ${badgeStyle}`}>
+          <Icon className="w-4 h-4" />
         </div>
       </div>
 
-      {(subtitle || change) && (
-        <div className="mt-4 pt-3 border-t border-soc-border/60 flex items-center justify-between text-xs">
-          {subtitle && <span className="text-soc-dim">{subtitle}</span>}
-          {change && (
-            <span
-              className={`font-mono font-medium ${
-                isPositive ? 'text-soc-green' : 'text-soc-red'
-              }`}
-            >
-              {change}
-            </span>
-          )}
-        </div>
-      )}
+      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+        <span className="text-slate-500 truncate mr-2">{subtitle}</span>
+        {change && (
+          <span
+            className={`font-medium flex-shrink-0 text-[11px] ${
+              isPositive ? 'text-emerald-700' : 'text-slate-600'
+            }`}
+          >
+            {change}
+          </span>
+        )}
+      </div>
     </div>
   );
 };

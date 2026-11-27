@@ -4,32 +4,33 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         soc: {
-          bg: '#0A0E1A',          // Deep dark navy
-          panel: '#111827',       // Dark panel surface
-          panelLight: '#1E293B',  // Elevated surface
-          border: '#1F2937',      // Subtle border
-          borderLight: '#374151', // Hover border
-          text: '#F3F4F6',        // Primary text
-          muted: '#9CA3AF',       // Subdued text
-          dim: '#6B7280',         // Dim text
-          cyan: '#06B6D4',        // Informational cyan
-          cyanGlow: '#0891B2',
-          purple: '#8B5CF6',      // AI accent purple
-          blue: '#3B82F6',        // Network blue
-          green: '#10B981',       // Healthy green
-          orange: '#F59E0B',      // Warning orange
-          red: '#EF4444',         // Critical red
-          redDark: '#991B1B',
+          bg: '#F8FAFC',          // Light gray slate background (#F8FAFC)
+          panel: '#FFFFFF',       // Clean white panel surface
+          panelLight: '#F1F5F9',  // Subtle slate tint for table headers & cards
+          border: '#E2E8F0',      // Crisp light border (slate-200)
+          borderLight: '#CBD5E1', // Hover border (slate-300)
+          text: '#0F172A',        // Primary text (slate-900)
+          muted: '#475569',       // Secondary text (slate-600)
+          dim: '#64748B',         // Dim text / metadata (slate-500)
+          cyan: '#0284C7',        // Ocean blue accent (sky-600)
+          cyanGlow: '#0369A1',
+          purple: '#7C3AED',      // Violet accent
+          blue: '#2563EB',        // Enterprise primary blue
+          blueLight: '#EFF6FF',   // Subtle blue tint for active elements
+          green: '#16A34A',       // Healthy green (emerald-600)
+          orange: '#D97706',      // Warning amber
+          red: '#DC2626',         // Critical red
+          redLight: '#FEF2F2',    // Subtle red surface
+          redDark: '#B91C1C',
         }
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       }
     },
   },

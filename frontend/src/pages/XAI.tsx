@@ -80,14 +80,14 @@ export const XAI: React.FC = () => {
           <button
             onClick={loadData}
             disabled={loading}
-            className="px-3 py-1.5 rounded-lg bg-soc-panelLight border border-soc-border text-xs font-mono text-soc-text hover:text-soc-purple transition flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-xs font-medium text-slate-700 transition flex items-center gap-1.5 shadow-sm"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             Refresh Explanations
           </button>
           <button
             onClick={handleExportExplanation}
-            className="px-3 py-1.5 rounded-lg bg-soc-purple/20 border border-soc-purple/40 text-xs font-mono text-soc-purple hover:bg-soc-purple/30 transition flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm"
           >
             <Download className="w-3.5 h-3.5" />
             Export XAI Report
@@ -96,56 +96,56 @@ export const XAI: React.FC = () => {
       }
     >
       {/* Research Disclaimer Alert */}
-      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-soc-text flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+      <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 flex items-start gap-3">
+        <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <strong className="text-amber-300 block font-mono">
-            Academic Research Methodology Disclaimer
+          <strong className="text-amber-950 block font-semibold text-xs">
+            Model Explainability Interpretation Note
           </strong>
-          <p className="text-soc-muted leading-relaxed">
-            SHAP and LIME provide mathematical approximations of feature attribution within local neighborhoods of the model manifold. In cybersecurity research, these explanations illuminate <em>why the model made a prediction</em>, but do not inherently establish empirical causality or guarantee adversarial infallibility.
+          <p className="text-amber-800 leading-relaxed font-sans">
+            SHAP and LIME provide mathematical approximations of feature attribution within local neighborhoods of the model manifold. In cybersecurity operations, these explanations illuminate <em>why the model arrived at this classification</em>, but should be synthesized with raw packet captures and network context before taking disruptive mitigation actions.
           </p>
         </div>
       </div>
 
       {/* Mode Navigation Tabs */}
-      <div className="flex border-b border-soc-border bg-soc-panel rounded-t-xl px-4 text-xs font-mono">
+      <div className="flex border-b border-slate-200 bg-white rounded-t-xl px-4 text-xs font-medium">
         <button
           onClick={() => setActiveTab('shap')}
-          className={`py-3 px-4 border-b-2 font-semibold transition ${
+          className={`py-3 px-4 border-b-2 transition ${
             activeTab === 'shap'
-              ? 'border-soc-purple text-soc-purple'
-              : 'border-transparent text-soc-muted hover:text-white'
+              ? 'border-blue-600 text-blue-600 font-semibold'
+              : 'border-transparent text-slate-600 hover:text-slate-900'
           }`}
         >
           SHAP Feature Contributions
         </button>
         <button
           onClick={() => setActiveTab('lime')}
-          className={`py-3 px-4 border-b-2 font-semibold transition ${
+          className={`py-3 px-4 border-b-2 transition ${
             activeTab === 'lime'
-              ? 'border-soc-cyan text-soc-cyan'
-              : 'border-transparent text-soc-muted hover:text-white'
+              ? 'border-blue-600 text-blue-600 font-semibold'
+              : 'border-transparent text-slate-600 hover:text-slate-900'
           }`}
         >
           LIME Decision Rules
         </button>
         <button
           onClick={() => setActiveTab('compare')}
-          className={`py-3 px-4 border-b-2 font-semibold transition ${
+          className={`py-3 px-4 border-b-2 transition ${
             activeTab === 'compare'
-              ? 'border-soc-orange text-soc-orange'
-              : 'border-transparent text-soc-muted hover:text-white'
+              ? 'border-blue-600 text-blue-600 font-semibold'
+              : 'border-transparent text-slate-600 hover:text-slate-900'
           }`}
         >
           Compare SHAP vs LIME
         </button>
         <button
           onClick={() => setActiveTab('reliability')}
-          className={`py-3 px-4 border-b-2 font-semibold transition ${
+          className={`py-3 px-4 border-b-2 transition ${
             activeTab === 'reliability'
-              ? 'border-emerald-400 text-emerald-400'
-              : 'border-transparent text-soc-muted hover:text-white'
+              ? 'border-blue-600 text-blue-600 font-semibold'
+              : 'border-transparent text-slate-600 hover:text-slate-900'
           }`}
         >
           Explanation Stability Audit
@@ -160,56 +160,72 @@ export const XAI: React.FC = () => {
 
         {activeTab === 'compare' && (
           <div className="soc-card space-y-4">
-            <div className="flex items-center justify-between border-b border-soc-border pb-3">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2">
-                <GitCompare className="w-5 h-5 text-soc-orange" />
-                <h3 className="text-base font-semibold text-white tracking-wide">
+                <GitCompare className="w-5 h-5 text-blue-600" />
+                <h3 className="text-sm font-semibold text-slate-900">
                   Cross-Method Feature Ranking Alignment (SHAP vs LIME)
                 </h3>
               </div>
-              <span className="soc-badge bg-soc-orange/15 text-soc-orange border border-soc-orange/30">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
                 Ranking Agreement: 85.7%
               </span>
             </div>
 
-            <p className="text-xs text-soc-muted leading-relaxed font-mono">
+            <p className="text-xs text-slate-500 leading-relaxed font-sans">
               Comparing global game-theoretic Shapley values against local sparse linear surrogate rules for Incident {incidentId}:
             </p>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-mono">
                 <thead>
-                  <tr className="border-b border-soc-border text-soc-dim uppercase text-[10px]">
+                  <tr className="border-b border-slate-200 text-slate-500 uppercase text-[11px] font-semibold font-sans bg-slate-50/50">
                     <th className="py-2.5 px-3">Feature Name</th>
                     <th className="py-2.5 px-3">SHAP Rank & Value</th>
                     <th className="py-2.5 px-3">LIME Rank & Weight</th>
                     <th className="py-2.5 px-3">Consensus Alignment</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-soc-border/50">
-                  <tr className="hover:bg-soc-panelLight/40">
-                    <td className="py-2.5 px-3 font-bold text-white">Packet Rate</td>
-                    <td className="py-2.5 px-3 text-red-400 font-bold">#1 (+0.42)</td>
-                    <td className="py-2.5 px-3 text-red-400 font-bold">#1 (+0.48)</td>
-                    <td className="py-2.5 px-3 text-emerald-400 font-bold">STRONG AGREEMENT</td>
+                <tbody className="divide-y divide-slate-100">
+                  <tr className="hover:bg-slate-50/80 transition">
+                    <td className="py-2.5 px-3 font-semibold text-slate-900 font-sans">Packet Rate</td>
+                    <td className="py-2.5 px-3 text-red-600 font-bold">#1 (+0.42)</td>
+                    <td className="py-2.5 px-3 text-red-600 font-bold">#1 (+0.48)</td>
+                    <td className="py-2.5 px-3 font-sans">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        STRONG AGREEMENT
+                      </span>
+                    </td>
                   </tr>
-                  <tr className="hover:bg-soc-panelLight/40">
-                    <td className="py-2.5 px-3 font-bold text-white">Destination Port</td>
-                    <td className="py-2.5 px-3 text-red-400">#2 (+0.31)</td>
-                    <td className="py-2.5 px-3 text-red-400">#2 (+0.28)</td>
-                    <td className="py-2.5 px-3 text-emerald-400 font-bold">STRONG AGREEMENT</td>
+                  <tr className="hover:bg-slate-50/80 transition">
+                    <td className="py-2.5 px-3 font-semibold text-slate-900 font-sans">Destination Port</td>
+                    <td className="py-2.5 px-3 text-red-600 font-semibold">#2 (+0.31)</td>
+                    <td className="py-2.5 px-3 text-red-600 font-semibold">#2 (+0.28)</td>
+                    <td className="py-2.5 px-3 font-sans">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        STRONG AGREEMENT
+                      </span>
+                    </td>
                   </tr>
-                  <tr className="hover:bg-soc-panelLight/40">
-                    <td className="py-2.5 px-3 font-bold text-white">Flow Duration</td>
-                    <td className="py-2.5 px-3 text-amber-400">#3 (+0.18)</td>
-                    <td className="py-2.5 px-3 text-amber-400">#4 (+0.12)</td>
-                    <td className="py-2.5 px-3 text-amber-400 font-semibold">MODERATE AGREEMENT</td>
+                  <tr className="hover:bg-slate-50/80 transition">
+                    <td className="py-2.5 px-3 font-semibold text-slate-900 font-sans">Flow Duration</td>
+                    <td className="py-2.5 px-3 text-amber-600 font-semibold">#3 (+0.18)</td>
+                    <td className="py-2.5 px-3 text-amber-600 font-semibold">#4 (+0.12)</td>
+                    <td className="py-2.5 px-3 font-sans">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                        MODERATE AGREEMENT
+                      </span>
+                    </td>
                   </tr>
-                  <tr className="hover:bg-soc-panelLight/40">
-                    <td className="py-2.5 px-3 font-bold text-white">Byte Rate / Count</td>
-                    <td className="py-2.5 px-3 text-amber-400">#4 (+0.09)</td>
-                    <td className="py-2.5 px-3 text-amber-400">#3 (+0.19)</td>
-                    <td className="py-2.5 px-3 text-amber-400 font-semibold">MODERATE AGREEMENT</td>
+                  <tr className="hover:bg-slate-50/80 transition">
+                    <td className="py-2.5 px-3 font-semibold text-slate-900 font-sans">Byte Rate / Count</td>
+                    <td className="py-2.5 px-3 text-amber-600 font-semibold">#4 (+0.09)</td>
+                    <td className="py-2.5 px-3 text-amber-600 font-semibold">#3 (+0.19)</td>
+                    <td className="py-2.5 px-3 font-sans">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                        MODERATE AGREEMENT
+                      </span>
+                    </td>
                   </tr>
                 </tbody>
               </table>

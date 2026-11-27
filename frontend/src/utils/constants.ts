@@ -3,7 +3,7 @@ const defaultWs = typeof window !== 'undefined' ? `${isHttps ? 'wss:' : 'ws:'}//
 
 export const APP_CONFIG = {
   appName: 'SENTINEL-X',
-  appTitle: 'Trustworthy Open-World Zero-Day Attack Detection in SDN',
+  appTitle: 'Trustworthy Open-World Zero-Day Attack Detection in Software-Defined Networks',
   version: '1.0.0-PROTOTYPE',
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
   wsUrl: import.meta.env.VITE_WS_URL || defaultWs,
@@ -11,21 +11,21 @@ export const APP_CONFIG = {
 };
 
 export const ATTACK_COLORS: Record<string, string> = {
-  'Normal': '#10B981',       // Green
-  'DDoS': '#EF4444',         // Red
-  'DoS': '#F97316',          // Orange
-  'Port Scan': '#F59E0B',    // Amber
-  'Brute Force': '#EC4899',  // Pink
-  'Botnet': '#8B5CF6',       // Purple
-  'Web Attack': '#3B82F6',   // Blue
-  'Unknown Attack': '#06B6D4', // Cyan
-  'Zero-Day Candidate': '#A855F7', // Magenta/Purple
+  'Normal': '#16A34A',       // Green
+  'DDoS': '#DC2626',         // Crimson
+  'DoS': '#EA580C',          // Orange
+  'Port Scan': '#D97706',    // Amber
+  'Brute Force': '#9333EA',  // Purple
+  'Botnet': '#7C3AED',       // Violet
+  'Web Attack': '#2563EB',   // Blue
+  'Unknown Attack': '#0284C7', // Sky Blue
+  'Zero-Day Candidate': '#7E22CE', // Deep Purple
 };
 
 export const SEVERITY_COLORS = {
-  CRITICAL: 'bg-red-500/10 text-red-400 border-red-500/30',
-  HIGH: 'bg-orange-500/10 text-orange-400 border-orange-500/30',
-  MEDIUM: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-  LOW: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
-  INFO: 'bg-soc-dim/10 text-soc-muted border-soc-border',
+  CRITICAL: 'bg-red-50 text-red-700 border border-red-200',
+  HIGH: 'bg-orange-50 text-orange-700 border border-orange-200',
+  MEDIUM: 'bg-amber-50 text-amber-800 border border-amber-200',
+  LOW: 'bg-blue-50 text-blue-700 border border-blue-200',
+  INFO: 'bg-slate-100 text-slate-700 border border-slate-200',
 };

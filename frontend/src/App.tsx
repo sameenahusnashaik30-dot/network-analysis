@@ -17,7 +17,7 @@ import { Settings } from './pages/Settings';
 export const App: React.FC = () => {
   return (
     <Router>
-      <div className="flex bg-soc-bg min-h-screen text-soc-text font-sans selection:bg-soc-cyan selection:text-black">
+      <div className="flex bg-slate-50 min-h-screen text-slate-900 font-sans antialiased">
         {/* Persistent SOC Navigation Sidebar */}
         <Sidebar />
 
@@ -25,7 +25,7 @@ export const App: React.FC = () => {
         <Header />
 
         {/* Content View Router */}
-        <main className="flex-1 w-full">
+        <main className="flex-1 w-full min-w-0">
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />

@@ -9,20 +9,20 @@ export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity }) => {
   const getStyle = () => {
     switch (severity.toUpperCase()) {
       case 'CRITICAL':
-        return 'bg-red-500/15 text-red-400 border-red-500/30';
+        return 'bg-red-50 text-red-700 border-red-200';
       case 'HIGH':
-        return 'bg-orange-500/15 text-orange-400 border-orange-500/30';
+        return 'bg-orange-50 text-orange-700 border-orange-200';
       case 'MEDIUM':
-        return 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+        return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'LOW':
-        return 'bg-blue-500/15 text-blue-400 border-blue-500/30';
+        return 'bg-blue-50 text-blue-700 border-blue-200';
       default:
-        return 'bg-slate-500/15 text-slate-400 border-slate-500/30';
+        return 'bg-slate-100 text-slate-700 border-slate-200';
     }
   };
 
   return (
-    <span className={`soc-badge border ${getStyle()}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${getStyle()}`}>
       {severity}
     </span>
   );

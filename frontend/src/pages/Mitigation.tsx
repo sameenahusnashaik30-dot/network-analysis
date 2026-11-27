@@ -57,22 +57,22 @@ export const Mitigation: React.FC = () => {
         <button
           onClick={loadData}
           disabled={loading}
-          className="px-3 py-1.5 rounded-lg bg-soc-panelLight border border-soc-border hover:border-soc-cyan/40 text-xs font-mono text-soc-text hover:text-soc-cyan transition flex items-center gap-1.5"
+          className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-xs font-medium text-slate-700 transition flex items-center gap-1.5 shadow-sm"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Refresh Mitigation State
+          Refresh State
         </button>
       }
     >
       {/* Zero Auto-Destruction Policy Notice */}
-      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-soc-text flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+      <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 flex items-start gap-3">
+        <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <strong className="text-amber-300 block font-mono">
+          <strong className="text-amber-950 block font-semibold text-xs">
             Safety Invariant: Recommendation-Only Default
           </strong>
-          <p className="text-soc-muted leading-relaxed">
-            Autonomous AI agents must never silently disconnect network infrastructure. All defensive suggestions (Block, Quarantine, Rate Limit) remain in <strong>PENDING REVIEW</strong> until a credentialed Administrator validates the correlated telemetry and authorizes the OpenFlow Flow-Mod command.
+          <p className="text-amber-800 leading-relaxed font-sans">
+            Autonomous AI models must never unilaterally disconnect live network ports. All defensive recommendations (Block, Quarantine, Rate Limit) remain in <strong>PENDING REVIEW</strong> until a credentialed Administrator validates correlated telemetry and authorizes the OpenFlow Flow-Mod command.
           </p>
         </div>
       </div>
